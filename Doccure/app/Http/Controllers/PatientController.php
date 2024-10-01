@@ -1,0 +1,189 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Patient;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+class PatientController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $patients = Patient::with('user', 'doctor.user')->get(); 
+        return view('patients.index', compact('patients')); 
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $doctors = Doctor::with('user')->get(); 
+        return view('patients.create', compact('doctors'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'doctor_id' => 'required|exists:doctors,id',
+        ]);
+    
+        // Get the currently authenticated user
+        $user = Auth::user();
+    
+        // Check if the user is already a patient (if not, create a new patient)
+        $patient = Patient::firstOrCreate(
+            ['user_id' => $user->id],
+            ['doctor_id' => $request->doctor_id]
+        );
+    
+        // Create the appointment and link it to the doctor and patient
+        $appointment = Appointment::create([
+            'doctor_id' => $request->doctor_id,
+            'patient_id' => $patient->id,  // Use the newly created or existing patient ID
+            'appointment_date' => $request->appointment_date,
+            'appointment_time' => $request->appointment_time,
+            'status' => 'pending',  // Assuming default status is pending
+        ]);
+    
+        return redirect()->route('appointment.success')->with('success', 'Appointment created successfully');
+    }
+    
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Patient $patient)
+{
+    return view('patients.show', compact('patient')); 
+}
+
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Patient $patient)
+    {
+        $doctors = Doctor::with('user')->get(); 
+        return view('patients.edit', compact('patient', 'doctors')); 
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Patient $patient)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $patient->user_id,
+            'phone' => 'required|string|max:15',
+            'address' => 'nullable|string|max:255',
+            'doctor_id' => 'required|exists:doctors,id',
+            'insurance_number' => 'required|string|max:255',
+            'medical_history' => 'required|string',
+            'date_of_birth' => 'required|date',
+        ]);
+    
+
+        $patient->user->update([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'address' => $request->input('address'),
+        ]);
+    
+
+        $patient->update([
+            'insurance_number' => $request->input('insurance_number'),
+            'medical_history' => $request->input('medical_history'),
+            'date_of_birth' => $request->input('date_of_birth'),
+            'doctor_id' => $request->input('doctor_id'),
+        ]);
+    
+        return redirect()->route('patients.index')->with('success', 'Patient updated successfully');
+    }
+    
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Patient $patient)
+    {
+        $patient->delete();
+
+        return redirect()->route('patients.index')->with('success', 'Patient deleted successfully');
+    }
+    public function incompletePatients()
+{
+    // Get the logged-in doctor
+    $doctor = Auth::user()->doctor;
+
+    // Find patients assigned to the logged-in doctor who have null values for 'insurance_number', 'medical_history', or 'date_of_birth'
+    $patients = Patient::with('user')
+        ->where('doctor_id', $doctor->id) // Ensure the patient is assigned to the logged-in doctor
+        ->where(function($query) {
+            $query->whereNull('insurance_number')
+                  ->orWhereNull('medical_history')
+                  ->orWhereNull('date_of_birth');
+        })
+        ->get();
+
+    return view('patients.incomplete', compact('patients'));
+}
+// PatientController.php
+
+public function completePatientForm(Patient $patient)
+{
+    // Ensure that only the assigned doctor can access this page
+    if (Auth::user()->doctor->id !== $patient->doctor_id) {
+        return redirect()->back()->with('error', 'You are not authorized to edit this patient.');
+    }
+
+    return view('patients.complete', compact('patient'));
+}
+
+public function saveCompletedPatient(Request $request, Patient $patient)
+{
+    // Ensure that only the assigned doctor can update these fields
+    if (Auth::user()->doctor->id !== $patient->doctor_id) {
+        return redirect()->back()->with('error', 'You are not authorized to update this patient.');
+    }
+
+    // Validate the form inputs
+    $request->validate([
+        'insurance_number' => 'required|string|max:255',
+        'medical_history' => 'required|string',
+        'date_of_birth' => 'required|date',
+    ]);
+
+    // Update the patient record
+    $patient->update([
+        'insurance_number' => $request->input('insurance_number'),
+        'medical_history' => $request->input('medical_history'),
+        'date_of_birth' => $request->input('date_of_birth'),
+    ]);
+
+    return redirect()->route('doctor.dashboard')->with('success', 'Patient information updated successfully.');
+}
+public function myPatients()
+{
+    // Assuming the logged-in doctor should see their own patients
+    $doctor = Auth::user()->doctor;
+
+    // Get patients assigned to this doctor, including related user data
+    $patients = Patient::where('doctor_id', $doctor->id)->with('user')->get();
+
+    return view('website.my-patients', compact('patients'));
+}
+
+}
