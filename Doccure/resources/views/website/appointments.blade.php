@@ -64,6 +64,14 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Appointment Actions -->
+                                <div class="appointment-actions mt-3">
+                                    <!-- Only show "Manage" button for appointments in progress -->
+                                    @if($appointment->status === 'in progress')
+                                        <a href="{{ route('appointments.manage', ['appointment' => $appointment->id]) }}" class="btn btn-primary">Manage Appointment</a>
+                                    @endif
+                                </div>
                             </div>
 
                             <!-- Appointment Details Modal -->

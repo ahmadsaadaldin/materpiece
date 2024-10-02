@@ -58,6 +58,12 @@
                                                 <li>Medical History <span>{{ $patient->medical_history ?? 'N/A' }}</span></li>
                                             </ul>
                                         </div>
+                                        <!-- Add View Medical History Button -->
+                                        <div class="text-center mt-2">
+                                            <a href="{{ route('medical_records.index', $patient->id) }}" class="btn btn-primary">
+                                                View Medical History
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

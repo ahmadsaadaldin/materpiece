@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MedicalRecordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,3 +82,11 @@ Route::resource('patients', PatientController::class);
 // Secretary management routes
 Route::resource('secretaries', SecretaryController::class);
 
+Route::get('patient/{id}/medical-records', [MedicalRecordController::class, 'index'])->name('medical_records.index');
+Route::get('patient/{id}/medical-records/create', [MedicalRecordController::class, 'create'])->name('medical_records.create');
+Route::post('patient/{id}/medical-records', [MedicalRecordController::class, 'store'])->name('medical_records.store');
+Route::get('medical-records/{medicalRecord}/edit', [MedicalRecordController::class, 'edit'])->name('medical_records.edit');
+Route::put('medical-records/{medicalRecord}', [MedicalRecordController::class, 'update'])->name('medical_records.update');
+Route::delete('medical-records/{medicalRecord}', [MedicalRecordController::class, 'destroy'])->name('medical_records.destroy');
+Route::get('/appointments/inprogress', [AppointmentController::class, 'inProgressAppointments'])->name('appointments.inprogress');
+Route::get('/appointments/{appointment}/manage', [AppointmentController::class, 'manageInProgress'])->name('appointments.manage');

@@ -21,26 +21,26 @@ class AuthController extends Controller
      * Handle user registration.
      */
     public function register(Request $request)
-{
-    // Validate incoming request, including phone field
-    $validateData = $request->validate([
-        "name" => "required|string|max:255",
-        "email" => "required|email|unique:users,email",
-        "phone" => "required|string|max:15",  // Add phone validation
-        "password" => "required|string|min:6|confirmed"
-    ]);
+    {
+        // Validate request data
+        $validateData = $request->validate([
+            "name" => "required|string|max:255",
+            "email" => "required|email|unique:users,email",
+            "phone" => "required|string|regex:/^[0-9]{10,15}$/", // Validate phone number to be between 10-15 digits
+            "password" => "required|string|min:8|confirmed"
+        ]);
 
-    // Create a new user with phone number
-    User::create([
-        "name" => $request->name,
-        "email" => $request->email,
-        "phone" => $request->phone,  
-        "password" => Hash::make($request->password),
-        "role_id" => 4,
-    ]);
+        // Create the user
+        User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "phone" => $request->phone, // Save phone number
+            "password" => Hash::make($request->password),
+            "role_id" => 4, // Default role ID for a "patient"
+        ]);
 
-    return redirect("/login")->with("success", "User created successfully");
-}
+        return redirect("/login")->with("success", "User created successfully");
+    }
 
     /**
      * Show the login form.
@@ -58,7 +58,7 @@ class AuthController extends Controller
         // Validation logic to ensure the email and password meet the criteria
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required|string|min:8', // Password must be at least 8 characters long
+            'password' => 'required|string|min:8',
         ]);
     
         // Get the credentials (email and password) from the request
@@ -80,9 +80,6 @@ class AuthController extends Controller
             return redirect()->back()->with('error', 'Invalid credentials. Please try again.');
         }
     }
-    
-    
-
 
     /**
      * Handle user logout.

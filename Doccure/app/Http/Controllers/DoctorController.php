@@ -1,13 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+
 class DoctorController extends Controller
 {
+    /**
+     * Display the homepage with all doctors.
+     */
     public function homepage()
     {
         // Fetch all doctors with their associated user data
@@ -16,6 +22,7 @@ class DoctorController extends Controller
         // Render the homepage view
         return view('website.home', compact('doctors'));
     }
+
     /**
      * Display a listing of the doctors.
      */
@@ -41,14 +48,13 @@ class DoctorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            // Other validations
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-    
+
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images/doctors', 'public');
         }
-    
+
         Doctor::create([
             'user_id' => $request->input('user_id'),
             'specialization' => $request->input('specialization'),
@@ -56,7 +62,7 @@ class DoctorController extends Controller
             'image' => $imagePath ?? null,
             'description' => $request->input('description'),
         ]);
-    
+
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
     }
 
@@ -65,7 +71,10 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
-        return view('website.doctor-profile', compact('doctor'));
+        // Get all patients assigned to this doctor using many-to-many relationship
+        $patients = $doctor->patients;
+
+        return view('website.doctor-profile', compact('doctor', 'patients'));
     }
 
     /**
@@ -83,17 +92,16 @@ class DoctorController extends Controller
     public function update(Request $request, Doctor $doctor)
     {
         $request->validate([
-            // Other validations
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-    
+
         if ($request->hasFile('image')) {
             if ($doctor->image) {
                 Storage::disk('public')->delete($doctor->image);
             }
             $imagePath = $request->file('image')->store('images/doctors', 'public');
         }
-    
+
         $doctor->update([
             'user_id' => $request->input('user_id'),
             'specialization' => $request->input('specialization'),
@@ -101,7 +109,7 @@ class DoctorController extends Controller
             'image' => $imagePath ?? $doctor->image,
             'description' => $request->input('description'),
         ]);
-    
+
         return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully.');
     }
 
@@ -113,29 +121,33 @@ class DoctorController extends Controller
         $doctor->delete();
         return redirect()->route('doctors.index')->with('success', 'Doctor deleted successfully.');
     }
+
+    /**
+     * Doctor's dashboard view.
+     */
     public function dashboard()
     {
         // Get the logged-in doctor
         $doctor = Auth::user()->doctor;
-    
+
         // Fetch upcoming scheduled appointments (appointments after today with status 'scheduled')
         $upcomingAppointments = $doctor->appointments()
             ->whereDate('appointment_date', '>', now())
             ->where('status', 'scheduled')
             ->orderBy('appointment_date', 'asc')
             ->get();
-    
+
         // Fetch today's scheduled appointments
         $todayAppointments = $doctor->appointments()
             ->whereDate('appointment_date', now())
             ->where('status', 'scheduled')
             ->orderBy('appointment_time', 'asc')
             ->get();
-    
-        // Pass both the upcoming and today's appointments to the view
-        return view('website.doctor-dashboard', compact('doctor', 'upcomingAppointments', 'todayAppointments'));
+
+        // Get all patients assigned to this doctor using many-to-many relationship
+        $patients = $doctor->patients;
+
+        // Pass both the upcoming and today's appointments, as well as patients, to the view
+        return view('website.doctor-dashboard', compact('doctor', 'upcomingAppointments', 'todayAppointments', 'patients'));
     }
-    
-    
-    
 }

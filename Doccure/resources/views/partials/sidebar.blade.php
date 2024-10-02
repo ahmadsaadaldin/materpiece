@@ -45,6 +45,13 @@
                         <span>My Patients</span>
                     </a>
                 </li>
+                <li class="{{ request()->is('doctor/in-progress-appointments') ? 'active' : '' }}">
+    <a href="{{ route('appointments.inprogress') }}">
+        <i class="fas fa-tasks"></i>
+        <span>In Progress</span>
+    </a>
+</li>
+
                 <li>
                     <a href="schedule-timings.html">
                         <i class="fas fa-hourglass-start"></i>

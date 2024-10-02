@@ -8,17 +8,16 @@ use App\Models\Doctor;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Patient;
 use Carbon\Carbon;
+use App\Models\MedicalRecord;
 
 class AppointmentController extends Controller
 {
-    
     // Show available booking slots for a doctor for the next 7 days
     public function booking($doctorId)
     {
         $doctor = Doctor::findOrFail($doctorId);
         $weekDays = collect();
 
-        // Loop through the next 7 days and fetch the available time slots
         for ($i = 0; $i < 7; $i++) {
             $date = now()->addDays($i)->format('Y-m-d');
             $appointments = Appointment::where('doctor_id', $doctorId)
@@ -26,7 +25,6 @@ class AppointmentController extends Controller
                                        ->pluck('appointment_time')
                                        ->toArray();
 
-            // Define available time slots for the day
             $timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM'];
             $availableTimeSlots = [];
 
@@ -38,7 +36,6 @@ class AppointmentController extends Controller
                 ];
             }
 
-            // Add data for each day
             $weekDays->add([
                 'day' => now()->addDays($i)->format('d'),
                 'month' => now()->addDays($i)->format('m'),
@@ -53,12 +50,10 @@ class AppointmentController extends Controller
     // Handle appointment creation
     public function store(Request $request)
     {
-        // Check if the user is logged in
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'You must be logged in to book an appointment.');
         }
     
-        // Validate request data
         $request->validate([
             'appointment_date' => 'required|date',
             'appointment_time' => 'required',
@@ -66,26 +61,17 @@ class AppointmentController extends Controller
         ]);
     
         $userId = Auth::id();
-    
-        // Check if the user is already a patient
         $patient = Patient::firstOrCreate(
             ['user_id' => $userId],
             [
-                'doctor_id' => $request->doctor_id,  // Assign the selected doctor
-                // Nullable fields since the doctor will complete this later
                 'insurance_number' => $request->input('insurance_number', null),
                 'medical_history' => $request->input('medical_history', null),
                 'date_of_birth' => $request->input('date_of_birth', null),
             ]
         );
     
-        // Update the doctor_id for the patient if it's not already set
-        if (!$patient->doctor_id) {
-            $patient->doctor_id = $request->doctor_id;
-            $patient->save(); // Save the updated patient record
-        }
+        $patient->doctors()->syncWithoutDetaching([$request->doctor_id]);
     
-        // Create the appointment
         $appointment = Appointment::create([
             'appointment_date' => $request->appointment_date,
             'appointment_time' => $request->appointment_time,
@@ -95,14 +81,12 @@ class AppointmentController extends Controller
             'notes' => $request->notes ?? null,
         ]);
     
-        // Redirect to success page with appointment details
         return redirect()->route('appointment.success')->with([
             'doctor' => Doctor::find($request->doctor_id),
             'appointment_date' => $appointment->appointment_date,
             'appointment_time' => $appointment->appointment_time,
         ]);
     }
-    
 
     // Show success page after appointment booking
     public function success(Request $request)
@@ -118,81 +102,91 @@ class AppointmentController extends Controller
     public function doctorAppointments(Request $request)
     {
         $user = Auth::user();
-        $doctor = $user->doctor;
-    
-        // Get the search query and date filter from the request
+        $doctor = $user->doctor; // Make sure to pass the doctor
+
         $search = $request->input('search');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-    
-        // Query appointments and filter by search term, date range, and other conditions
+
         $appointments = Appointment::where('doctor_id', $doctor->id)
-                                    ->where(function ($query) use ($search, $startDate, $endDate) {
-                                        if ($search) {
-                                            // Search patient name and email
-                                            $query->whereHas('patient.user', function ($query) use ($search) {
-                                                $query->where('name', 'like', '%' . $search . '%')
-                                                      ->orWhere('email', 'like', '%' . $search . '%');
-                                            })
-                                            // Search status
-                                            ->orWhere('status', 'like', '%' . $search . '%')
-                                            // Search date as parts (day, month, year)
-                                            ->orWhereRaw('DATE_FORMAT(appointment_date, "%d") LIKE ?', ['%' . $search . '%'])
-                                            ->orWhereRaw('DATE_FORMAT(appointment_date, "%m") LIKE ?', ['%' . $search . '%'])
-                                            ->orWhereRaw('DATE_FORMAT(appointment_date, "%Y") LIKE ?', ['%' . $search . '%'])
-                                            // Search time
-                                            ->orWhere('appointment_time', 'like', '%' . $search . '%');
-                                        }
-                                        // Filter by date range if provided
-                                        if ($startDate && $endDate) {
-                                            $query->whereBetween('appointment_date', [$startDate, $endDate]);
-                                        } elseif ($startDate) {
-                                            $query->whereDate('appointment_date', '>=', $startDate);
-                                        } elseif ($endDate) {
-                                            $query->whereDate('appointment_date', '<=', $endDate);
-                                        }
-                                    })
-                                    ->orderBy('appointment_date', 'asc')
-                                    ->simplePaginate(5);
-    
+                                ->where(function ($query) use ($search, $startDate, $endDate) {
+                                    if ($search) {
+                                        $query->whereHas('patient.user', function ($query) use ($search) {
+                                            $query->where('name', 'like', '%' . $search . '%')
+                                                  ->orWhere('email', 'like', '%' . $search . '%');
+                                        })
+                                        ->orWhere('status', 'like', '%' . $search . '%')
+                                        ->orWhereRaw('DATE_FORMAT(appointment_date, "%d") LIKE ?', ['%' . $search . '%'])
+                                        ->orWhereRaw('DATE_FORMAT(appointment_date, "%m") LIKE ?', ['%' . $search . '%'])
+                                        ->orWhereRaw('DATE_FORMAT(appointment_date, "%Y") LIKE ?', ['%' . $search . '%'])
+                                        ->orWhere('appointment_time', 'like', '%' . $search . '%');
+                                    }
+                                    if ($startDate && $endDate) {
+                                        $query->whereBetween('appointment_date', [$startDate, $endDate]);
+                                    } elseif ($startDate) {
+                                        $query->whereDate('appointment_date', '>=', $startDate);
+                                    } elseif ($endDate) {
+                                        $query->whereDate('appointment_date', '<=', $endDate);
+                                    }
+                                })
+                                ->orderBy('appointment_date', 'asc')
+                                ->simplePaginate(5);
+
         return view('website.appointments', compact('appointments', 'doctor', 'search', 'startDate', 'endDate'));
     }
-    
-    
 
-    
-
-
-    // Update the status of an appointment (accept/cancel)
-    public function updateAppointmentStatus(Request $request, $appointmentId)
+    // Show in-progress appointments for the logged-in doctor
+    public function inProgressAppointments()
     {
-        // Find the appointment and update its status
-        $appointment = Appointment::findOrFail($appointmentId);
+        $doctor = Auth::user()->doctor; // Pass the doctor variable here
+
+        $appointments = Appointment::where('doctor_id', $doctor->id)
+            ->where('status', 'in progress')
+            ->with('patient.user')
+            ->get();
+
+        return view('appointments.inprogress', compact('appointments', 'doctor')); // Pass doctor to the view
+    }
+
+    // Manage in-progress appointment
+    public function manageInProgress($appointmentId)
+    {
+        $appointment = Appointment::with('patient.user')->findOrFail($appointmentId);
+
+        $medicalRecords = MedicalRecord::where('patient_id', $appointment->patient_id)->get();
+
+        return view('appointments.manage', compact('appointment', 'medicalRecords'));
+    }
+
+    // Update the status of an appointment
+    public function updateAppointmentStatus(Request $request, Appointment $appointment)
+    {
         $appointment->status = $request->input('status');
         $appointment->save();
 
-        return redirect()->back()->with('success', 'Appointment status updated successfully.');
+        if ($appointment->status == 'in progress') {
+            return redirect()->route('appointments.manage', $appointment->id)->with('success', 'Appointment is now in progress.');
+        }
+
+        return redirect()->back()->with('success', 'Appointment status updated.');
     }
 
     // Method to show today's appointments and upcoming appointments separately
     public function showTodayAndUpcomingAppointments()
     {
         $user = Auth::user();
-
         if ($user->role_id != 2) {
             return redirect()->route('home')->with('error', 'Unauthorized access');
         }
 
         $today = Carbon::today();
 
-        // Fetch today's appointments
         $todayAppointments = Appointment::where('doctor_id', $user->doctor->id)
                                         ->whereDate('appointment_date', $today)
                                         ->where('status', 'scheduled')
                                         ->with('patient')
                                         ->get();
 
-        // Fetch upcoming appointments
         $upcomingAppointments = Appointment::where('doctor_id', $user->doctor->id)
                                            ->whereDate('appointment_date', '>', $today)
                                            ->where('status', 'scheduled')
@@ -201,5 +195,4 @@ class AppointmentController extends Controller
 
         return view('website.doctor-appointments', compact('todayAppointments', 'upcomingAppointments'));
     }
-    
 }
