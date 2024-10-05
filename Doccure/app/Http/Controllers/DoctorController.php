@@ -150,4 +150,22 @@ class DoctorController extends Controller
         // Pass both the upcoming and today's appointments, as well as patients, to the view
         return view('website.doctor-dashboard', compact('doctor', 'upcomingAppointments', 'todayAppointments', 'patients'));
     }
+    public function publicList(Request $request)
+{
+    // Retrieve search query from the request
+    $search = $request->input('search');
+
+    // Query to fetch doctors and allow searching by name or specialization
+    $doctors = Doctor::with('user')
+        ->when($search, function ($query, $search) {
+            return $query->whereHas('user', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })->orWhere('specialization', 'like', '%' . $search . '%');
+        })
+        ->paginate(10);  // Adjust the pagination as needed
+
+    return view('doctors.public-list', compact('doctors', 'search'));
+}
+
+
 }

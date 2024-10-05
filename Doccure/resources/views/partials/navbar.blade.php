@@ -25,11 +25,13 @@
                 <li class="active">
                     <a href="{{ route('home') }}">Home</a>
                 </li>
+                <li>
+                    <a href="{{ route('doctors.publicList') }}">Doctors</a> <!-- Link to the doctors page -->
+                </li>
                 <!-- Other menu items -->
-                <!-- Add conditional logic for displaying login/signup or logout -->
                 @if(Auth::check())
                     <li>
-                        <a href="{{ route('home') }}">home</a>
+                        <a href="{{ route('home') }}">Dashboard</a>
                     </li>
                     <li>
                         <a href="{{ route('logout') }}"
@@ -49,8 +51,6 @@
             </ul>         
         </div>         
         <ul class="nav header-navbar-rht">
-            <li class="nav-item contact-item">
-            </li>
             @if(Auth::check())
                 <li class="nav-item">
                     <a class="nav-link header-login" href="{{ route('logout') }}"

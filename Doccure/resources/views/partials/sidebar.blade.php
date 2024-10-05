@@ -51,6 +51,13 @@
         <span>In Progress</span>
     </a>
 </li>
+<li class="{{ request()->is('doctor/diagnosis') ? 'active' : '' }}">
+    <a href="{{ route('doctors.diagnosis') }}">
+        <i class="fas fa-stethoscope"></i>
+        <span>Diagnosis Assistant</span>
+    </a>
+</li>
+
 
                 <li>
                     <a href="schedule-timings.html">

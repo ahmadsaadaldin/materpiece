@@ -9,7 +9,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
-
+use App\Http\Controllers\DiagnosisController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -71,6 +71,9 @@ Route::get('/doctor/patient/{patient}/complete', [PatientController::class, 'com
 // Route to save the completed patient data
 Route::post('/doctor/patient/{patient}/complete', [PatientController::class, 'saveCompletedPatient'])->name('patients.complete.save');
 Route::get('/doctor/my-patients', [PatientController::class, 'myPatients'])->name('website.mypatients');
+// Diagnosis Routes
+Route::get('/doctor/diagnosis', [DiagnosisController::class, 'showDiagnosisForm'])->name('doctors.diagnosis.form'); // Show form
+Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->name('doctors.diagnosis'); // Process form and display result
 
 
 // Route for viewing a doctor's profile on the website (Keep this after the incomplete-patients route)
@@ -90,3 +93,5 @@ Route::put('medical-records/{medicalRecord}', [MedicalRecordController::class, '
 Route::delete('medical-records/{medicalRecord}', [MedicalRecordController::class, 'destroy'])->name('medical_records.destroy');
 Route::get('/appointments/inprogress', [AppointmentController::class, 'inProgressAppointments'])->name('appointments.inprogress');
 Route::get('/appointments/{appointment}/manage', [AppointmentController::class, 'manageInProgress'])->name('appointments.manage');
+Route::get('/doctors-public-list', [DoctorController::class, 'publicList'])->name('doctors.publicList');
+
