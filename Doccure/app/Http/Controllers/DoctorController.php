@@ -194,6 +194,7 @@ public function createProfile()
 
 public function storeProfile(Request $request)
 {
+    \Log::info('Store profile request', $request->all()); // This will log the form data
     $request->validate([
         'phone' => 'required|numeric|digits_between:7,15',
         'gender' => 'required|in:Male,Female',
@@ -208,8 +209,8 @@ public function storeProfile(Request $request)
         'country' => 'required|string|max:100',
         'postal_code' => 'required|numeric|min:5',
         'biography' => 'required|string|max:500',
-        'services' => 'required|string|max:255',
-        'specialization' => 'required|string|max:255',
+        'services' => 'nullable|array',
+        'specialization' => 'nullable|array',
         'education' => 'required|string|max:500',
         'experience' => 'required|string|max:500',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Profile image validation
@@ -220,6 +221,10 @@ public function storeProfile(Request $request)
 
     // Fetch the existing doctor profile based on user_id
     $doctor = Doctor::where('user_id', $user->id)->firstOrFail(); // Use firstOrFail to ensure the doctor exists
+
+    // Update services and specialization as JSON arrays
+    $doctor->services = json_encode($request->input('services', []));
+    $doctor->specialization = json_encode($request->input('specialization', []));
 
     // Update the doctor's profile data
     $doctor->gender = $request->gender;
@@ -233,8 +238,6 @@ public function storeProfile(Request $request)
     $doctor->country = $request->country;
     $doctor->postal_code = $request->postal_code;
     $doctor->biography = $request->biography;
-    $doctor->services = $request->services;
-    $doctor->specialization = $request->specialization;
     $doctor->education = $request->education;
     $doctor->experience = $request->experience;
 
@@ -258,6 +261,7 @@ public function storeProfile(Request $request)
     // Redirect to profile settings with success message
     return redirect()->route('doctor.profile-settings')->with('success', 'Profile updated successfully.');
 }
+
 public function profileSettings()
 {
     $doctor = auth()->user()->doctor;

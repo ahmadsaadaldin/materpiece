@@ -152,18 +152,47 @@
 
     <!-- Services and Specialization -->
     <h4 class="card-title">Services and Specialization</h4>
+
+    <!-- Services Section -->
     <div class="form-group">
         <label>Services</label>
-        <input type="text" name="services" class="input-tags form-control" data-role="tagsinput" value="{{ old('services') }}" placeholder="e.g. Tooth Cleaning">
-        <small class="form-text text-muted">Type & Press enter to add new services</small>
-        @error('services') <small class="text-danger">{{ $message }}</small> @enderror
+        <div id="services-wrapper">
+            @if(is_array(old('services')))
+                @foreach(old('services') as $service)
+                    <div class="input-group mb-2">
+                        <input type="text" name="services[]" class="form-control" value="{{ $service }}" placeholder="Enter Service">
+                        <button type="button" class="btn btn-danger remove-service">Remove</button>
+                    </div>
+                @endforeach
+            @else
+                <div class="input-group mb-2">
+                    <input type="text" name="services[]" class="form-control" placeholder="Enter Service">
+                    <button type="button" class="btn btn-danger remove-service">Remove</button>
+                </div>
+            @endif
+        </div>
+        <button type="button" id="add-service" class="btn btn-secondary mt-2">Add Service</button>
     </div>
 
-    <div class="form-group mb-0">
+    <!-- Specialization Section -->
+    <div class="form-group">
         <label>Specialization</label>
-        <input type="text" name="specialization" class="input-tags form-control" data-role="tagsinput" value="{{ old('specialization') }}" placeholder="e.g. Cardiology">
-        <small class="form-text text-muted">Type & Press enter to add new specialization</small>
-        @error('specialization') <small class="text-danger">{{ $message }}</small> @enderror
+        <div id="specialization-wrapper">
+            @if(is_array(old('specialization')))
+                @foreach(old('specialization') as $spec)
+                    <div class="input-group mb-2">
+                        <input type="text" name="specialization[]" class="form-control" value="{{ $spec }}" placeholder="Enter Specialization">
+                        <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+                    </div>
+                @endforeach
+            @else
+                <div class="input-group mb-2">
+                    <input type="text" name="specialization[]" class="form-control" placeholder="Enter Specialization">
+                    <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+                </div>
+            @endif
+        </div>
+        <button type="button" id="add-specialization" class="btn btn-secondary mt-2">Add Specialization</button>
     </div>
 
     <!-- Education -->
@@ -182,7 +211,6 @@
         @error('experience') <small class="text-danger">{{ $message }}</small> @enderror
     </div>
 
-
     <!-- Submit Button -->
     <div class="submit-section">
         <button type="submit" class="btn btn-primary submit-btn">Save Changes</button>
@@ -197,4 +225,58 @@
     </div>
     <!-- /Page Content -->
 </div>
+
+<!-- JavaScript for Adding/Removing Services and Specializations -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add Service
+        document.getElementById('add-service').addEventListener('click', function () {
+            const servicesWrapper = document.getElementById('services-wrapper');
+            const newService = document.createElement('div');
+            newService.classList.add('input-group', 'mb-2');
+            newService.innerHTML = `
+                <input type="text" name="services[]" class="form-control" placeholder="Enter Service">
+                <button type="button" class="btn btn-danger remove-service">Remove</button>
+            `;
+            servicesWrapper.appendChild(newService);
+
+            // Add event listener to the remove button for the new service
+            newService.querySelector('.remove-service').addEventListener('click', function () {
+                newService.remove();
+            });
+        });
+
+        // Add Specialization
+        document.getElementById('add-specialization').addEventListener('click', function () {
+            const specializationWrapper = document.getElementById('specialization-wrapper');
+            const newSpecialization = document.createElement('div');
+            newSpecialization.classList.add('input-group', 'mb-2');
+            newSpecialization.innerHTML = `
+                <input type="text" name="specialization[]" class="form-control" placeholder="Enter Specialization">
+                <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+            `;
+            specializationWrapper.appendChild(newSpecialization);
+
+            // Add event listener to the remove button for the new specialization
+            newSpecialization.querySelector('.remove-specialization').addEventListener('click', function () {
+                newSpecialization.remove();
+            });
+        });
+
+        // Existing remove service buttons
+        document.querySelectorAll('.remove-service').forEach(function (button) {
+            button.addEventListener('click', function () {
+                button.closest('.input-group').remove();
+            });
+        });
+
+        // Existing remove specialization buttons
+        document.querySelectorAll('.remove-specialization').forEach(function (button) {
+            button.addEventListener('click', function () {
+                button.closest('.input-group').remove();
+            });
+        });
+    });
+</script>
+
 @endsection

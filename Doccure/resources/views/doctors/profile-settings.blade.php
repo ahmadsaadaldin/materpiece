@@ -33,8 +33,18 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Basic Information</h4>
-                            <form method="POST" action="{{ route('doctor.store-profile') }}" enctype="multipart/form-data">
+                            <!-- Debugging Form -->
+                            <form method="POST" action="{{ route('doctor.store-profile') }}" enctype="multipart/form-data"> 
                                 @csrf
+                                @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
                                 <!-- Avatar Upload -->
                                 <div class="form-group">
@@ -60,7 +70,19 @@
                                             <label>Phone Number</label>
                                             <input type="text" name="phone" class="form-control" value="{{ old('phone', $doctor->phone) }}">
                                         </div>
+                                        <!-- Education -->
+<div class="form-group">
+    <label>Education</label>
+    <textarea class="form-control" name="education" rows="4">{{ old('education', $doctor->education) }}</textarea>
+</div>
+
+<!-- Experience -->
+<div class="form-group">
+    <label>Experience</label>
+    <textarea class="form-control" name="experience" rows="4">{{ old('experience', $doctor->experience) }}</textarea>
+</div>
                                     </div>
+                                    
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Gender</label>
@@ -152,26 +174,64 @@
 
                                 <!-- Services and Specialization -->
                                 <h4 class="card-title">Services and Specialization</h4>
-                                <div class="form-group">
-                                    <label>Services</label>
-                                    <input type="text" name="services" class="input-tags form-control" data-role="tagsinput" value="{{ old('services', $doctor->services) }}">
-                                </div>
 
-                                <div class="form-group">
-                                    <label>Specialization</label>
-                                    <input type="text" name="specialization" class="input-tags form-control" value="{{ old('specialization', $doctor->specialization) }}">
-                                </div>
+                               <!-- Services Section -->
+                               <div class="form-group">
+    <label>Services</label>
+    <div id="services-wrapper">
+        @if(is_array(old('services')))
+            @foreach(old('services') as $service)
+                <div class="input-group mb-2">
+                    <input type="text" name="services[]" class="form-control" value="{{ $service }}" placeholder="Enter Service">
+                    <button type="button" class="btn btn-danger remove-service">Remove</button>
+                </div>
+            @endforeach
+        @else
+            @if(!is_null($doctor->services) && is_array(json_decode($doctor->services)))
+                @foreach(json_decode($doctor->services) as $service)
+                    <div class="input-group mb-2">
+                        <input type="text" name="services[]" class="form-control" value="{{ $service }}" placeholder="Enter Service">
+                        <button type="button" class="btn btn-danger remove-service">Remove</button>
+                    </div>
+                @endforeach
+            @endif
+            <div class="input-group mb-2">
+                <input type="text" name="services[]" class="form-control" placeholder="Enter Service">
+                <button type="button" class="btn btn-danger remove-service">Remove</button>
+            </div>
+        @endif
+    </div>
+    <button type="button" id="add-service" class="btn btn-secondary mt-2">Add Service</button>
+</div>
 
-                                <!-- Education and Experience -->
-                                <h4 class="card-title">Education and Experience</h4>
-                                <div class="form-group">
-                                    <label>Education</label>
-                                    <input type="text" name="education" class="form-control" value="{{ old('education', $doctor->education) }}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Experience</label>
-                                    <input type="text" name="experience" class="form-control" value="{{ old('experience', $doctor->experience) }}">
-                                </div>
+<!-- Specialization Section -->
+<div class="form-group">
+    <label>Specialization</label>
+    <div id="specialization-wrapper">
+        @if(is_array(old('specialization')))
+            @foreach(old('specialization') as $spec)
+                <div class="input-group mb-2">
+                    <input type="text" name="specialization[]" class="form-control" value="{{ $spec }}" placeholder="Enter Specialization">
+                    <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+                </div>
+            @endforeach
+        @else
+            @if(!is_null($doctor->specialization) && is_array(json_decode($doctor->specialization)))
+                @foreach(json_decode($doctor->specialization) as $spec)
+                    <div class="input-group mb-2">
+                        <input type="text" name="specialization[]" class="form-control" value="{{ $spec }}" placeholder="Enter Specialization">
+                        <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+                    </div>
+                @endforeach
+            @endif
+            <div class="input-group mb-2">
+                <input type="text" name="specialization[]" class="form-control" placeholder="Enter Specialization">
+                <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+            </div>
+        @endif
+    </div>
+    <button type="button" id="add-specialization" class="btn btn-secondary mt-2">Add Specialization</button>
+</div>
 
                                 <!-- Submit Button -->
                                 <div class="submit-section">
@@ -186,4 +246,64 @@
     </div>
     <!-- /Page Content -->
 </div>
+
+<!-- JavaScript for Adding/Removing Services and Specializations -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add Service
+        document.getElementById('add-service').addEventListener('click', function () {
+            const servicesWrapper = document.getElementById('services-wrapper');
+            const newService = document.createElement('div');
+            newService.classList.add('input-group', 'mb-2');
+            newService.innerHTML = `
+                <input type="text" name="services[]" class="form-control" placeholder="Enter Service">
+                <button type="button" class="btn btn-danger remove-service">Remove</button>
+            `;
+            servicesWrapper.appendChild(newService);
+
+            // Add event listener to the remove button for the new service
+            newService.querySelector('.remove-service').addEventListener('click', function () {
+                newService.remove();
+            });
+
+            console.log("Service added");
+        });
+
+        // Add Specialization
+        document.getElementById('add-specialization').addEventListener('click', function () {
+            const specializationWrapper = document.getElementById('specialization-wrapper');
+            const newSpecialization = document.createElement('div');
+            newSpecialization.classList.add('input-group', 'mb-2');
+            newSpecialization.innerHTML = `
+                <input type="text" name="specialization[]" class="form-control" placeholder="Enter Specialization">
+                <button type="button" class="btn btn-danger remove-specialization">Remove</button>
+            `;
+            specializationWrapper.appendChild(newSpecialization);
+
+            // Add event listener to the remove button for the new specialization
+            newSpecialization.querySelector('.remove-specialization').addEventListener('click', function () {
+                newSpecialization.remove();
+            });
+
+            console.log("Specialization added");
+        });
+
+        // Existing remove service buttons
+        document.querySelectorAll('.remove-service').forEach(function (button) {
+            button.addEventListener('click', function () {
+                button.closest('.input-group').remove();
+                console.log("Service removed");
+            });
+        });
+
+        // Existing remove specialization buttons
+        document.querySelectorAll('.remove-specialization').forEach(function (button) {
+            button.addEventListener('click', function () {
+                button.closest('.input-group').remove();
+                console.log("Specialization removed");
+            });
+        });
+    });
+</script>
+
 @endsection
