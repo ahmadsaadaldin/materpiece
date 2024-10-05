@@ -21,7 +21,7 @@ class DiagnosisController extends Controller
         try {
             // Call the ChatGPT API
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer sk-CWfRbwrsqTEZtN7WKkvrEB4dGXW1oS4e7qUbdetoOuT3BlbkFJMepY8XX0D33Td_mggBT0EOblfHglaL-b5kuk3Lx6cA',
+                'Authorization' => 'Bearer Api_key',
             ])->post('https://api.openai.com/v1/completions', [
                 'model' => 'gpt-3.5-turbo',  // Or use 'gpt-4'
                 'prompt' => 'A patient is experiencing symptoms such as ' . $symptoms . '. Their medical history includes ' . $medicalHistory . '. Based on this, what is a likely diagnosis and what should the next steps be?',
