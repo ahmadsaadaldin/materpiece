@@ -28,7 +28,7 @@ Route::get('/', [DoctorController::class, 'homepage'])->name('home');
 
 // Admin dashboard route
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
+Route::resource('doctor/invoices', InvoiceController::class);
 // User management routes
 Route::resource('users', UserController::class);
 
@@ -102,3 +102,5 @@ Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'create'
 Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
 Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
 Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'createInvoice'])->name('invoices.create');
+
+

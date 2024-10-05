@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Invoice;
 
 class DoctorController extends Controller
 {
@@ -129,27 +130,43 @@ class DoctorController extends Controller
     {
         // Get the logged-in doctor
         $doctor = Auth::user()->doctor;
+        
+          // Count the number of patients assigned to this doctor
+    $patientsCount = $doctor->patients()->count();
 
+    // Calculate total revenue from invoices
+    $totalRevenue = $doctor->invoices()->sum('amount');
+
+    // Count the number of appointments
+    $appointmentsCount = $doctor->appointments()->count();
         // Fetch upcoming scheduled appointments (appointments after today with status 'scheduled')
         $upcomingAppointments = $doctor->appointments()
             ->whereDate('appointment_date', '>', now())
             ->where('status', 'scheduled')
             ->orderBy('appointment_date', 'asc')
             ->get();
-
+    
         // Fetch today's scheduled appointments
         $todayAppointments = $doctor->appointments()
             ->whereDate('appointment_date', now())
             ->where('status', 'scheduled')
             ->orderBy('appointment_time', 'asc')
             ->get();
-
-        // Get all patients assigned to this doctor using many-to-many relationship
-        $patients = $doctor->patients;
-
-        // Pass both the upcoming and today's appointments, as well as patients, to the view
-        return view('website.doctor-dashboard', compact('doctor', 'upcomingAppointments', 'todayAppointments', 'patients'));
+    
+        // Fetch daily revenue (sum of amounts) grouped by invoice creation date
+        $dailyRevenue = Invoice::selectRaw('DATE(created_at) as date, SUM(amount) as total')
+            ->where('doctor_id', $doctor->id)
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+    
+        // Pass data to the view
+        return view('website.doctor-dashboard', compact('doctor', 'upcomingAppointments', 'todayAppointments', 'dailyRevenue','patientsCount', 'totalRevenue', 'appointmentsCount'));
     }
+    
+
+
+
     public function publicList(Request $request)
 {
     // Retrieve search query from the request

@@ -47,8 +47,62 @@
     <!-- Slick JS -->
     <script src="{{ asset('main/assets/js/slick.js') }}"></script>
     
+    <!-- Theia Sticky Sidebar Plugin -->
+    <script src="{{ asset('main/assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js') }}"></script>
+
     <!-- Custom JS -->
     <script src="{{ asset('main/assets/js/script.js') }}"></script>
+
+    <!-- ChartJS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Inline script to initialize Theia Sticky Sidebar and Chart.js -->
+    <script>
+        $(document).ready(function () {
+            // Theia Sticky Sidebar initialization (only if element is found)
+            if ($('.theiaStickySidebar').length > 0) {
+                $('.theiaStickySidebar').theiaStickySidebar({
+                    additionalMarginTop: 30
+                });
+            }
+
+            // Chart.js Initialization (check if the canvas exists)
+            var ctx = document.getElementById('revenueChart');
+            if (ctx) {
+                var revenueData = {!! isset($dailyRevenue) && count($dailyRevenue) > 0 ? json_encode($dailyRevenue->pluck('total')->toArray()) : '[]' !!};
+                var labelsData = {!! isset($dailyRevenue) && count($dailyRevenue) > 0 ? json_encode($dailyRevenue->pluck('date')->map(function ($date) { return \Carbon\Carbon::parse($date)->format('d M Y'); })->toArray()) : '[]' !!};
+
+                var revenueChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labelsData.length > 0 ? labelsData : ['No Data'],
+                        datasets: [{
+                            label: 'Daily Revenue',
+                            data: revenueData.length > 0 ? revenueData : [0], // If no data, provide a dummy value
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'category',
+                                beginAtZero: true,
+                                ticks: {
+                                    autoSkip: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
     
 </body>
 </html>

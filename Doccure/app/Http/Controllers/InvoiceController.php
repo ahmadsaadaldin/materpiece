@@ -13,20 +13,33 @@ class InvoiceController extends Controller
      * Display a listing of the resource.
      * This would show all invoices, if needed.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Get the currently logged-in doctor
-        $doctor = auth()->user()->doctor;
+        $doctor = auth()->user()->doctor; // Get the logged-in doctor
+        $doctorId = $doctor->id;
     
-        // Fetch invoices that belong to the logged-in doctor
-        $invoices = Invoice::where('doctor_id', $doctor->id)
-                            ->with('patient')
-                            ->get();
+        // Start the query for filtering invoices
+        $query = Invoice::with('patient.user')->where('doctor_id', $doctorId);
     
-        // Return the view with the filtered invoices
-        return view('invoices.index', compact('invoices'));
+        // Filter by patient name if provided
+        if ($request->filled('patient_name')) {
+            $query->whereHas('patient.user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->patient_name . '%');
+            });
+        }
+    
+        // Filter by invoice date if provided
+        if ($request->filled('invoice_date')) {
+            $query->whereDate('created_at', $request->invoice_date);
+        }
+    
+        // Get the filtered results
+        $invoices = $query->get();
+    
+        return view('invoices.index', compact('invoices', 'doctor'));
     }
     
+
 
     /**
      * Show the form for creating a new invoice.
@@ -107,4 +120,5 @@ class InvoiceController extends Controller
         $invoice->delete();
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
+    
 }
