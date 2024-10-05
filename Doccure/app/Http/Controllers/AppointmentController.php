@@ -161,15 +161,26 @@ class AppointmentController extends Controller
     // Update the status of an appointment
     public function updateAppointmentStatus(Request $request, Appointment $appointment)
     {
+        // Update the status of the appointment
         $appointment->status = $request->input('status');
         $appointment->save();
-
+    
+        // If the appointment is in progress, redirect back to manage the appointment
         if ($appointment->status == 'in progress') {
-            return redirect()->route('appointments.manage', $appointment->id)->with('success', 'Appointment is now in progress.');
+            return redirect()->route('appointments.manage', $appointment->id)
+                             ->with('success', 'Appointment is now in progress.');
         }
-
+    
+        // If the appointment is completed, redirect to the invoice creation page
+        if ($appointment->status == 'completed') {
+            return redirect()->route('invoices.create', ['appointment' => $appointment->id])
+                             ->with('success', 'Appointment is completed. Create an invoice.');
+        }
+    
         return redirect()->back()->with('success', 'Appointment status updated.');
     }
+    
+
 
     // Method to show today's appointments and upcoming appointments separately
     public function showTodayAndUpcomingAppointments()

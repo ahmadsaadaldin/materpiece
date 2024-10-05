@@ -30,4 +30,8 @@ class Doctor extends Model
     public function secretary(){
         return $this->hasOne(Secretary::class);
     }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

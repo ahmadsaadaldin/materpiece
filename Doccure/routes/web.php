@@ -10,6 +10,8 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\DiagnosisController;
+use App\Http\Controllers\InvoiceController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -95,3 +97,8 @@ Route::get('/appointments/inprogress', [AppointmentController::class, 'inProgres
 Route::get('/appointments/{appointment}/manage', [AppointmentController::class, 'manageInProgress'])->name('appointments.manage');
 Route::get('/doctors-public-list', [DoctorController::class, 'publicList'])->name('doctors.publicList');
 
+Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'create'])->name('invoices.create');
+
+Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
+Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'createInvoice'])->name('invoices.create');
