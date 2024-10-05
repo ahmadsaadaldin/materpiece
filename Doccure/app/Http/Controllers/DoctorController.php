@@ -184,5 +184,88 @@ class DoctorController extends Controller
     return view('doctors.public-list', compact('doctors', 'search'));
 }
 
+public function createProfile()
+{
+    // Assuming you are fetching the doctor data for the currently logged-in user
+    $doctor = Doctor::where('user_id', auth()->user()->id)->first();
+    
+    return view('doctors.create-profile', compact('doctor'));
+}
+
+public function storeProfile(Request $request)
+{
+    $request->validate([
+        'phone' => 'required|numeric|digits_between:7,15',
+        'gender' => 'required|in:Male,Female',
+        'date_of_birth' => 'required|date|before:today',
+        'clinic_name' => 'required|string|max:255',
+        'clinic_address' => 'required|string|max:255',
+        'clinic_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Allowing multiple images
+        'address_line_1' => 'required|string|max:255',
+        'address_line_2' => 'nullable|string|max:255',
+        'city' => 'required|string|max:100',
+        'state' => 'nullable|string|max:100',
+        'country' => 'required|string|max:100',
+        'postal_code' => 'required|numeric|min:5',
+        'biography' => 'required|string|max:500',
+        'services' => 'required|string|max:255',
+        'specialization' => 'required|string|max:255',
+        'education' => 'required|string|max:500',
+        'experience' => 'required|string|max:500',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Profile image validation
+    ]);
+
+    // Get the currently authenticated user
+    $user = auth()->user();
+
+    // Fetch the existing doctor profile based on user_id
+    $doctor = Doctor::where('user_id', $user->id)->firstOrFail(); // Use firstOrFail to ensure the doctor exists
+
+    // Update the doctor's profile data
+    $doctor->gender = $request->gender;
+    $doctor->date_of_birth = $request->date_of_birth;
+    $doctor->clinic_name = $request->clinic_name;
+    $doctor->clinic_address = $request->clinic_address;
+    $doctor->address_line_1 = $request->address_line_1;
+    $doctor->address_line_2 = $request->address_line_2;
+    $doctor->city = $request->city;
+    $doctor->state = $request->state;
+    $doctor->country = $request->country;
+    $doctor->postal_code = $request->postal_code;
+    $doctor->biography = $request->biography;
+    $doctor->services = $request->services;
+    $doctor->specialization = $request->specialization;
+    $doctor->education = $request->education;
+    $doctor->experience = $request->experience;
+
+    // Store profile image if uploaded
+    if ($request->hasFile('image')) {
+        $doctor->image = $request->file('image')->store('doctors', 'public');
+    }
+
+    // Store clinic images if uploaded
+    if ($request->hasFile('clinic_images')) {
+        $clinicImages = [];
+        foreach ($request->file('clinic_images') as $image) {
+            $clinicImages[] = $image->store('clinics', 'public');
+        }
+        $doctor->clinic_images = json_encode($clinicImages); // Store as JSON array
+    }
+
+    // Save the updated doctor profile
+    $doctor->save();
+
+    // Redirect to profile settings with success message
+    return redirect()->route('doctor.profile-settings')->with('success', 'Profile updated successfully.');
+}
+public function profileSettings()
+{
+    $doctor = auth()->user()->doctor;
+    return view('doctors.profile-settings', compact('doctor'));
+}
+
+
+
+
 
 }

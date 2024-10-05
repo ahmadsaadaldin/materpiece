@@ -77,6 +77,13 @@ Route::get('/doctor/my-patients', [PatientController::class, 'myPatients'])->nam
 Route::get('/doctor/diagnosis', [DiagnosisController::class, 'showDiagnosisForm'])->name('doctors.diagnosis.form'); // Show form
 Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->name('doctors.diagnosis'); // Process form and display result
 
+// Doctor profile routes
+Route::get('/doctor/create-profile', [DoctorController::class, 'createProfile'])->name('doctor.create-profile');
+Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])->name('doctor.store-profile');
+Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
+
+
+
 
 // Route for viewing a doctor's profile on the website (Keep this after the incomplete-patients route)
 Route::get('/doctor/{doctor}', [DoctorController::class, 'show'])->name('doctor.profile');

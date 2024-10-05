@@ -58,12 +58,29 @@
                     </a>
                 </li>
                 <li class="{{ request()->is('doctor/invoices') ? 'active' : '' }}">
-    <a href="{{ route('invoices.index') }}">
-        <i class="fas fa-file-invoice"></i>
-        <span>Invoices</span>
-    </a>
-</li>
+                    <a href="{{ route('invoices.index') }}">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Invoices</span>
+                    </a>
+                </li>
 
+                <!-- Add Create Profile link -->
+                <li class="{{ request()->is('doctor/create-profile') ? 'active' : '' }}">
+                    <a href="{{ route('doctor.create-profile') }}">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create Profile</span>
+                    </a>
+                </li>
+
+                <!-- Add Profile Settings link -->
+                <li class="{{ request()->is('doctor/profile-settings') ? 'active' : '' }}">
+                    <a href="{{ route('doctor.profile-settings') }}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+
+                <!-- Other Links -->
                 <li>
                     <a href="reviews.html">
                         <i class="fas fa-star"></i>
@@ -75,12 +92,6 @@
                         <i class="fas fa-comments"></i>
                         <span>Message</span>
                         <small class="unread-msg">23</small>
-                    </a>
-                </li>
-                <li>
-                    <a href="doctor-profile-settings.html">
-                        <i class="fas fa-user-cog"></i>
-                        <span>Profile Settings</span>
                     </a>
                 </li>
                 <li>
@@ -105,3 +116,4 @@
         </nav>
     </div>
 </div>
+    
