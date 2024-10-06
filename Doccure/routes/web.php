@@ -12,6 +12,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\InvoiceController;
 
+use App\Http\Controllers\ReviewController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -83,6 +84,9 @@ Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])-
 Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
 
 
+
+// Route for submitting a review
+Route::post('/doctor/{id}/submit-review', [ReviewController::class, 'submitReview'])->name('doctor.submitReview');
 
 
 // Route for viewing a doctor's profile on the website (Keep this after the incomplete-patients route)

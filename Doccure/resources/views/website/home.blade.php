@@ -22,7 +22,7 @@
                         </div>
                         <div class="form-group search-info">
                             <input type="text" class="form-control" placeholder="Search Doctors, Clinics, Hospitals, Diseases Etc">
-                            <span class="form-text">Ex : Dental or Sugar Check up etc</span>
+                            <span class="form-text">Ex: Dental or Sugar Check up etc</span>
                         </div>
                         <button type="submit" class="btn btn-primary search-btn"><i class="fas fa-search"></i> <span>Search</span></button>
                     </form>
@@ -110,7 +110,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-4">
-                    <div class="section-header ">
+                    <div class="section-header">
                         <h2>Book Our Doctor</h2>
                         <p>Lorem Ipsum is simply dummy text </p>
                     </div>
@@ -134,7 +134,14 @@
                                     <a href="{{ route('doctor.profile', $doctor->id) }}">{{ $doctor->user->name }}</a>
                                     <i class="fas fa-check-circle verified"></i>
                                 </h3>
-                                <p class="speciality">{{ $doctor->specialization }}</p>
+                                <p class="speciality">
+    @if(is_array(json_decode($doctor->specialization, true)))
+        {{ implode(', ', json_decode($doctor->specialization, true)) }}
+    @else
+        {{ $doctor->specialization }}
+    @endif
+</p>
+
                                 <ul class="available-info">
                                     <li><i class="fas fa-map-marker-alt"></i> {{ $doctor->user->address }}</li>
                                 </ul>
@@ -158,4 +165,14 @@
     <!-- /Popular Section -->
 
 </div>
+
+<!-- CSS for fixing image size -->
+<style>
+    .profile-widget .doc-img img {
+        width: 250px; /* Fixed width */
+        height: 150px; /* Fixed height */
+        object-fit: cover; /* Ensures the image fits the box without distortion */
+        border-radius: 3%; /* Optional: if you want a circular image */
+    }
+</style>
 @endsection
