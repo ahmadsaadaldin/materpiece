@@ -83,6 +83,8 @@ Route::get('/doctor/create-profile', [DoctorController::class, 'createProfile'])
 Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])->name('doctor.store-profile');
 Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
 
+// web.php
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
 
 
 // Route for submitting a review

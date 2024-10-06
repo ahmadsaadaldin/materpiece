@@ -53,4 +53,17 @@ class ReviewController extends Controller
         // Redirect back with a success message
         return back()->with('success', 'Review submitted successfully!');
     }
+    public function destroy(Review $review)
+{
+    // Check if the logged-in user is the owner of the review
+    if (auth()->user()->id !== $review->patient->user_id) {
+        return back()->with('error', 'You can only delete your own reviews.');
+    }
+
+    // Delete the review
+    $review->delete();
+
+    return back()->with('success', 'Review deleted successfully.');
+}
+
 }
