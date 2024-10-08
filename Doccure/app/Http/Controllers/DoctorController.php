@@ -268,6 +268,16 @@ public function profileSettings()
     return view('doctors.profile-settings', compact('doctor'));
 }
 
+public function showDoctorReviews()
+{
+    // Get the currently logged-in doctor
+    $doctor = Auth::user()->doctor;
+
+    // Fetch reviews related to this doctor
+    $reviews = $doctor->reviews()->with('patient.user')->get();  // Assuming Review belongs to Doctor and Review has Patient
+    
+    return view('doctors.doctor-reviews', compact('doctor', 'reviews'));
+}
 
 
 

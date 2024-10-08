@@ -81,37 +81,12 @@
                 </li>
 
                 <!-- Other Links -->
-                <li>
-                    <a href="reviews.html">
-                        <i class="fas fa-star"></i>
-                        <span>Reviews</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="chat-doctor.html">
-                        <i class="fas fa-comments"></i>
-                        <span>Message</span>
-                        <small class="unread-msg">23</small>
-                    </a>
-                </li>
-                <li>
-                    <a href="social-media.html">
-                        <i class="fas fa-share-alt"></i>
-                        <span>Social Media</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="doctor-change-password.html">
-                        <i class="fas fa-lock"></i>
-                        <span>Change Password</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
+                <li class="{{ request()->is('doctor/reviews') ? 'active' : '' }}">
+    <a href="{{ route('doctor.reviews') }}">
+        <i class="fas fa-star"></i>
+        <span>Reviews</span>
+    </a>
+</li>
             </ul>
         </nav>
     </div>

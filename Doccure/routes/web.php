@@ -82,6 +82,7 @@ Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->
 Route::get('/doctor/create-profile', [DoctorController::class, 'createProfile'])->name('doctor.create-profile');
 Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])->name('doctor.store-profile');
 Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
+Route::get('/doctor/reviews', [DoctorController::class, 'showDoctorReviews'])->name('doctor.reviews');
 
 // web.php
 Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
