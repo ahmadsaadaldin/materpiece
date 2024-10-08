@@ -56,11 +56,6 @@
                         </div>
                     </div>
                     <div class="doc-info-right">
-                        <div class="clini-infos">
-                            <ul>
-                                <li><i class="far fa-comment"></i> 35 Feedback</li> <!-- Example static value -->    
-                            </ul>
-                        </div>
                         <div class="clinic-booking">
                             <a class="apt-btn" href="{{ route('appointment.booking', $doctor->id) }}">Book Appointment</a>
                         </div>
@@ -121,57 +116,54 @@
                     <!-- /Overview Content -->
 
                     <!-- Reviews Content -->
-                    <!-- Reviews Content -->
-<div role="tabpanel" id="doc_reviews" class="tab-pane fade">
-    <!-- Review Listing -->
-    <div class="widget review-listing">
-        <h4 class="widget-title">Reviews</h4>
-        <ul class="comments-list">
-            @forelse($doctor->reviews as $review)
-                <li class="review-item">
-                    <div class="comment-box">
-                        <div class="comment-body">
-                            <!-- Reviewer Name -->
-                            <span class="comment-author">{{ $review->patient->user->name }}</span>
+                    <div role="tabpanel" id="doc_reviews" class="tab-pane fade">
+                        <!-- Review Listing -->
+                        <div class="widget review-listing">
+                            <h4 class="widget-title">Reviews</h4>
+                            <ul class="comments-list">
+                                @forelse($doctor->reviews as $review)
+                                    <li class="review-item">
+                                        <div class="comment-box">
+                                            <div class="comment-body">
+                                                <!-- Reviewer Name -->
+                                                <span class="comment-author">{{ $review->patient->user->name }}</span>
 
-                            <!-- Star Rating -->
-                            <div class="review-count rating">
-                                @for($i = 1; $i <= 5; $i++)
-                                    @if($i <= $review->rating)
-                                        <i class="fas fa-star filled"></i>
-                                    @else
-                                        <i class="fas fa-star"></i>
-                                    @endif
-                                @endfor
-                            </div>
+                                                <!-- Star Rating -->
+                                                <div class="review-count rating">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        @if($i <= $review->rating)
+                                                            <i class="fas fa-star filled"></i>
+                                                        @else
+                                                            <i class="fas fa-star"></i>
+                                                        @endif
+                                                    @endfor
+                                                </div>
 
-                            <!-- Review Title -->
-                            <p class="review-title" style="font-weight: bold;">{{ $review->title }}</p>
+                                                <!-- Review Title -->
+                                                <p class="review-title" style="font-weight: bold;">{{ $review->title }}</p>
 
-                            <!-- Review Content -->
-                            <p class="comment-content">{{ $review->content }}</p>
+                                                <!-- Review Content -->
+                                                <p class="comment-content">{{ $review->content }}</p>
 
-                            <!-- Time of Comment -->
-                            <span class="comment-date">{{ $review->created_at->diffForHumans() }}</span>
+                                                <!-- Time of Comment -->
+                                                <span class="comment-date">{{ $review->created_at->diffForHumans() }}</span>
 
-                            <!-- Delete Review Button (Only show to the owner) -->
-                            @if(auth()->check() && auth()->user()->id === $review->patient->user_id)
-                                <form action="{{ route('review.destroy', $review->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this review?')">Delete</button>
-                                </form>
-                            @endif
+                                                <!-- Delete Review Button (Only show to the owner) -->
+                                                @if(auth()->check() && auth()->user()->id === $review->patient->user_id)
+                                                    <form action="{{ route('review.destroy', $review->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this review?')">Delete</button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </li>
+                                @empty
+                                    <p>No reviews yet.</p>
+                                @endforelse
+                            </ul>
                         </div>
-                    </div>
-                </li>
-            @empty
-                <p>No reviews yet.</p>
-            @endforelse
-        </ul>
-    </div>
-</div>
-
                         <!-- /Review Listing -->
 
                         <!-- Write Review Section -->

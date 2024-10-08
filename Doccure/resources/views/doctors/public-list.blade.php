@@ -40,12 +40,34 @@
                                 <i class="fas fa-check-circle verified"></i>
                             </h3>
                             <p class="speciality">
-    @if(is_array(json_decode($doctor->specialization, true)))
-        {{ implode(', ', json_decode($doctor->specialization, true)) }}
-    @else
-        {{ $doctor->specialization }}
-    @endif
-</p>
+                                @if(is_array(json_decode($doctor->specialization, true)))
+                                    {{ implode(', ', json_decode($doctor->specialization, true)) }}
+                                @else
+                                    {{ $doctor->specialization }}
+                                @endif
+                            </p>
+
+                            <!-- Star Rating -->
+                            @php
+                                $averageRating = round($doctor->reviews->avg('rating'), 1);
+                            @endphp
+
+                            @if($averageRating > 0)
+                                <div class="rating">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if ($i <= $averageRating)
+                                            <i class="fas fa-star" style="color: #ffc107;"></i> <!-- Filled yellow star -->
+                                        @else
+                                            <i class="far fa-star" style="color: #ffc107;"></i> <!-- Empty star -->
+                                        @endif
+                                    @endfor
+                                    <span>{{ $doctor->reviews->count() }} reviews</span>
+                                </div>
+                            @else
+                                <div class="rating">
+                                    <span>No reviews yet</span>
+                                </div>
+                            @endif
 
                             <ul class="available-info">
                                 <li><i class="fas fa-map-marker-alt"></i> {{ $doctor->user->address }}</li>
@@ -75,10 +97,10 @@
 <!-- CSS to style the doctor cards similarly to the home page -->
 <style>
     .profile-widget .doc-img img {
-        width: 350px; /* Fixed width */
-        height: 250px; /* Fixed height */
-        object-fit: cover; /* Ensures the image fits the box without distortion */
-        border-radius: 3%; /* Optional: if you want a rounded image */
+        width: 350px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 3%;
     }
     .pro-content .btn {
         margin-top: 10px;
@@ -92,5 +114,8 @@
     .speciality {
         color: #777;
         margin-top: 5px;
+    }
+    .rating i {
+        color: #ffc107; /* Yellow color for the stars */
     }
 </style>
