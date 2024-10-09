@@ -86,13 +86,14 @@ class InvoiceController extends Controller
      * Display the specified invoice.
      */
     public function show($id)
-{
-    // Fetch the invoice with related doctor and patient details
-    $invoice = Invoice::with('doctor', 'patient')->findOrFail($id);
-
-    return view('invoices.show', compact('invoice'));
-}
-
+    {
+        // Fetch the invoice with related doctor and patient details
+        $invoice = Invoice::with('appointment.doctor.user', 'appointment.patient.user')->findOrFail($id);
+    
+        // Pass the $invoice variable to the view
+        return view('invoices.show', compact('invoice'));
+    }
+    
     
 
     /**
@@ -120,5 +121,12 @@ class InvoiceController extends Controller
         $invoice->delete();
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
+    public function viewInvoiceDetails($invoiceId)
+{
+    // Fetch the invoice with related details like appointments, patient, and doctor
+    $invoice = Invoice::with('appointment.doctor.user', 'appointment.patient.user')->findOrFail($invoiceId);
     
+    return view('invoices.view', compact('invoice'));
+}
+
 }

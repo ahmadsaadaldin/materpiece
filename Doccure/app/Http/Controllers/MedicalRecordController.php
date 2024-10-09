@@ -110,4 +110,12 @@ class MedicalRecordController extends Controller
         $doctor = Auth::user()->doctor; // Get the logged-in doctor
         return redirect()->back()->with('success', 'Medical record deleted successfully.')->with(compact('doctor'));
     }
+    public function show($id)
+{
+    // Fetch the medical record with related details like doctor and patient
+    $medicalRecord = MedicalRecord::with('doctor.user', 'patient.user')->findOrFail($id);
+
+    return view('medical_records.show', compact('medicalRecord'));
+}
+
 }

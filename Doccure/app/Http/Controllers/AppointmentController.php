@@ -206,4 +206,13 @@ class AppointmentController extends Controller
 
         return view('website.doctor-appointments', compact('todayAppointments', 'upcomingAppointments'));
     }
+    public function viewAppointmentDetails($appointmentId)
+{
+    // Find the appointment by ID and load related data (e.g., doctor, patient)
+    $appointment = Appointment::with(['doctor.user', 'patient.user'])->findOrFail($appointmentId);
+
+    // Return the appointment details view
+    return view('appointments.view', compact('appointment'));
+}
+
 }

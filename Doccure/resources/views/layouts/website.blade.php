@@ -23,6 +23,30 @@
         <script src="{{ asset('main/assets/js/html5shiv.min.js') }}"></script>
         <script src="{{ asset('main/assets/js/respond.min.js') }}"></script>
     <![endif]-->
+    
+    <!-- Sticky Footer Styling -->
+    <style>
+        /* Ensure full height and flex layout */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container-fluid {
+            flex: 1;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+    </style>
 </head>
 <body>
 

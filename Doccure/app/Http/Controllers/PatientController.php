@@ -194,4 +194,74 @@ class PatientController extends Controller
 
         return view('website.my-patients', compact('patients'));
     }
+    public function patientDashboard()
+    {
+        // Eager load medicalRecords along with the doctor and user relationships
+        $patient = Patient::where('user_id', Auth::id())
+                          ->with('medicalRecords.doctor.user') // Eager load related data
+                          ->firstOrFail(); 
+    
+        // Fetch appointments and invoices
+        $appointments = $patient->appointments;
+        $invoices = $patient->invoices;
+        $medicalRecords = $patient->medicalRecords;
+    
+        return view('patients.patient-dashboard', compact('appointments', 'invoices', 'medicalRecords'));
+    }
+    public function profile()
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+    
+        // Get the corresponding patient data for the authenticated user
+        $patient = Patient::where('user_id', $user->id)->first();
+    
+        // Ensure that the patient data exists
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient not found.');
+        }
+    
+        // Pass both the user and patient to the view
+        return view('patients.profile', compact('user', 'patient'));
+    }
+    
+    
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+    
+        // Find the patient record based on the authenticated user's ID
+        $patient = Patient::where('user_id', $user->id)->first();
+    
+        // Validate the request data
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8|confirmed', // password confirmation
+            'insurance_number' => 'required|string|max:255'
+        ]);
+    
+        // Update user's email
+        $user->email = $request->input('email');
+    
+        // Update user's password if provided
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->input('password'));
+        }
+        $user->save();
+    
+        // If patient record does not exist, show an error or handle accordingly
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient record not found.');
+        }
+    
+        // Update patient's insurance number
+        $patient->insurance_number = $request->input('insurance_number');
+        $patient->save();
+    
+        return redirect()->back()->with('success', 'Profile updated successfully');
+    }
+    
+    
+
 }

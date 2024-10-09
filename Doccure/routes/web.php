@@ -26,6 +26,9 @@ use App\Http\Controllers\ReviewController;
 
 // Homepage route to display doctors
 Route::get('/', [DoctorController::class, 'homepage'])->name('home');
+Route::get('/patient/dashboard', [PatientController::class, 'patientDashboard'])->name('patients.patient-dashboard');
+Route::get('/appointments/{appointment}', [AppointmentController::class, 'viewAppointmentDetails'])->name('appointment.details');
+
 
 // Admin dashboard route
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -118,3 +121,7 @@ Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('inv
 Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'createInvoice'])->name('invoices.create');
 
 
+Route::get('/invoices/{invoice}', [InvoiceController::class, 'viewInvoiceDetails'])->name('invoices.details');
+Route::get('/medical-records/{id}/details', [MedicalRecordController::class, 'show'])->name('medical.history.details');
+Route::get('/patient/profile', [PatientController::class, 'profile'])->name('patients.profile');
+Route::post('/patient/profile/update', [PatientController::class, 'updateProfile'])->name('patients.updateProfile');
