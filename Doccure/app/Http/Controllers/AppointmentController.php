@@ -138,15 +138,15 @@ class AppointmentController extends Controller
     // Show in-progress appointments for the logged-in doctor
     public function inProgressAppointments()
     {
-        $doctor = Auth::user()->doctor; // Pass the doctor variable here
-
+        $doctor = Auth::user()->doctor;
         $appointments = Appointment::where('doctor_id', $doctor->id)
-            ->where('status', 'in progress')
-            ->with('patient.user')
-            ->get();
-
-        return view('appointments.inprogress', compact('appointments', 'doctor')); // Pass doctor to the view
+                                    ->where('status', 'in progress')
+                                    ->with('patient.user')
+                                    ->get();
+    
+        return view('appointments.inprogress', compact('appointments', 'doctor'));
     }
+    
 
     // Manage in-progress appointment
     public function manageInProgress($appointmentId)

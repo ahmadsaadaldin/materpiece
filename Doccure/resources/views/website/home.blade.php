@@ -15,17 +15,19 @@
 
                 <!-- Search -->
                 <div class="search-box">
-                    <form action="#">
-                        <div class="form-group search-location">
-                            <input type="text" class="form-control" placeholder="Search Location">
-                            <span class="form-text">Based on your Location</span>
-                        </div>
-                        <div class="form-group search-info">
-                            <input type="text" class="form-control" placeholder="Search Doctors, Clinics, Hospitals, Diseases Etc">
-                            <span class="form-text">Ex: Dental or Sugar Check up etc</span>
-                        </div>
-                        <button type="submit" class="btn btn-primary search-btn"><i class="fas fa-search"></i> <span>Search</span></button>
-                    </form>
+                <form action="{{ route('doctors.publicList') }}" method="GET">
+    <div class="form-group search-location">
+        <input type="text" name="search" class="form-control" placeholder="Search Location (City or State)" value="{{ request('search') }}">
+        <span class="form-text">Based on your Location</span>
+    </div>
+    <div class="form-group search-info">
+        <input type="text" name="search" class="form-control" placeholder="Search Doctors, Specialization, Clinic Name, Services, etc." value="{{ request('search') }}">
+        <span class="form-text">Ex: Dental, Neurology, Dr. John Doe</span>
+    </div>
+    <button type="submit" class="btn btn-primary search-btn"><i class="fas fa-search"></i> <span>Search</span></button>
+</form>
+
+
                 </div>
                 <!-- /Search -->
 
@@ -39,7 +41,7 @@
         <div class="container-fluid">
             <div class="section-header text-center">
                 <h2>Clinic and Specialities</h2>
-                <p class="sub-title">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <p class="sub-title">Choose from a wide range of specialities to find the best care for your health needs. Whether you need a dentist, cardiologist, or specialist in another field, we have you covered.</p>
             </div>
             <div class="row justify-content-center">
                 <div class="col-md-9">
@@ -111,13 +113,13 @@
             <div class="row">
                 <div class="col-lg-4">
                     <div class="section-header">
-                        <h2>Book Our Doctor</h2>
-                        <p>Lorem Ipsum is simply dummy text </p>
+                        <h2>Find Trusted Doctors Near You</h2>
+                        <p>Book an appointment with the best doctors in your area. Check profiles, read reviews, and make your booking in just a few clicks.</p>
                     </div>
                     <div class="about-content">
-                        <p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum.</p>
-                        <p>Web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many websites still in their infancy. Various versions have evolved over the years.</p>
-                        <a href="javascript:;">Read More..</a>
+                        <p>Explore our selection of top-rated doctors across a variety of specializations, from dentistry to cardiology. Our platform helps you find the care you need, when you need it.</p>
+                        <a href="{{ route('doctors.publicList') }}">All doctors</a>
+
                     </div>
                 </div>
                 <div class="col-lg-8">

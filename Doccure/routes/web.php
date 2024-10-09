@@ -11,8 +11,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\ReviewController;
 
+use App\Http\Controllers\ReviewController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,11 +24,36 @@ use App\Http\Controllers\ReviewController;
 |
 */
 
-// Public Routes (accessible to all visitors)
+// Homepage route to display doctors
+Route::get('/appointments/inprogress', [AppointmentController::class, 'inProgressAppointments'])->name('appointments.inprogress');
 Route::get('/', [DoctorController::class, 'homepage'])->name('home');
 Route::get('/patient/dashboard', [PatientController::class, 'patientDashboard'])->name('patients.patient-dashboard');
 Route::get('/appointments/{appointment}', [AppointmentController::class, 'viewAppointmentDetails'])->name('appointment.details');
 
+
+// Admin dashboard route
+Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::resource('doctor/invoices', InvoiceController::class);
+// User management routes
+Route::resource('users', UserController::class);
+
+// Doctor management routes (for admin)
+Route::resource('doctors', DoctorController::class);
+
+// Route for booking a doctor
+Route::get('/booking/{doctorId}', [AppointmentController::class, 'booking'])->name('appointment.booking');
+
+// Route to handle booking submission
+Route::post('/appointments/store', [AppointmentController::class, 'store'])->name('appointments.store');
+
+// Success page after booking an appointment
+Route::get('/appointment/success', [AppointmentController::class, 'success'])->name('appointment.success');
+
+// Route to view all appointments for the logged-in doctor
+Route::get('/doctorappointments', [AppointmentController::class, 'doctorAppointments'])->name('doctorappointments');
+
+// Route to update the status of an appointment (e.g., mark as completed or cancel)
+Route::put('/appointments/{appointment}', [AppointmentController::class, 'updateAppointmentStatus'])->name('appointments.update');
 
 // Registration routes
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register.show');
@@ -41,101 +66,61 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 // Logout route
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Public doctor list (accessible by anyone)
-Route::get('/doctors-public-list', [DoctorController::class, 'publicList'])->name('doctors.publicList');
+// Doctor dashboard route (for after login)
+Route::get('/doctor-dashboard', [DoctorController::class, 'dashboard'])->name('doctor.dashboard')->middleware('auth');
 
-// Route for viewing a doctor's profile (publicly available)
+// Route for incomplete patients (to be completed by the doctor)
+Route::get('/doctor/incomplete-patients', [PatientController::class, 'incompletePatients'])->name('patients.incomplete');
+
+// Route to show form to complete the patient data
+Route::get('/doctor/patient/{patient}/complete', [PatientController::class, 'completePatientForm'])->name('patients.complete.form');
+
+// Route to save the completed patient data
+Route::post('/doctor/patient/{patient}/complete', [PatientController::class, 'saveCompletedPatient'])->name('patients.complete.save');
+Route::get('/doctor/my-patients', [PatientController::class, 'myPatients'])->name('website.mypatients');
+// Diagnosis Routes
+Route::get('/doctor/diagnosis', [DiagnosisController::class, 'showDiagnosisForm'])->name('doctors.diagnosis.form'); // Show form
+Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->name('doctors.diagnosis'); // Process form and display result
+
+// Doctor profile routes
+Route::get('/doctor/create-profile', [DoctorController::class, 'createProfile'])->name('doctor.create-profile');
+Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])->name('doctor.store-profile');
+Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
+Route::get('/doctor/reviews', [DoctorController::class, 'showDoctorReviews'])->name('doctor.reviews');
+
+// web.php
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
+
+
+// Route for submitting a review
+Route::post('/doctor/{id}/submit-review', [ReviewController::class, 'submitReview'])->name('doctor.submitReview');
+
+
+// Route for viewing a doctor's profile on the website (Keep this after the incomplete-patients route)
 Route::get('/doctor/{doctor}', [DoctorController::class, 'show'])->name('doctor.profile');
 
-// Patient and medical record routes accessible for the patient
-Route::group(['middleware' => ['auth', 'role:4']], function () {
-    // Patient-specific routes
-    Route::get('/booking/{doctorId}', [AppointmentController::class, 'booking'])->name('appointment.booking');
-    Route::post('/appointments/store', [AppointmentController::class, 'store'])->name('appointments.store');
-    Route::get('/appointment/success', [AppointmentController::class, 'success'])->name('appointment.success');
+// Patient management routes
+Route::resource('patients', PatientController::class);
 
-    // Submit review
-    Route::post('/doctor/{id}/submit-review', [ReviewController::class, 'submitReview'])->name('doctor.submitReview');
+// Secretary management routes
+Route::resource('secretaries', SecretaryController::class);
 
-    // View medical records
-    Route::get('patient/{id}/medical-records', [MedicalRecordController::class, 'index'])->name('medical_records.index');
-    Route::get('patient/{id}/medical-records/create', [MedicalRecordController::class, 'create'])->name('medical_records.create');
-    Route::post('patient/{id}/medical-records', [MedicalRecordController::class, 'store'])->name('medical_records.store');
-    Route::get('medical-records/{medicalRecord}/edit', [MedicalRecordController::class, 'edit'])->name('medical_records.edit');
-    Route::put('medical-records/{medicalRecord}', [MedicalRecordController::class, 'update'])->name('medical_records.update');
-    Route::delete('medical-records/{medicalRecord}', [MedicalRecordController::class, 'destroy'])->name('medical_records.destroy');
-});
+Route::get('patient/{id}/medical-records', [MedicalRecordController::class, 'index'])->name('medical_records.index');
+Route::get('patient/{id}/medical-records/create', [MedicalRecordController::class, 'create'])->name('medical_records.create');
+Route::post('patient/{id}/medical-records', [MedicalRecordController::class, 'store'])->name('medical_records.store');
+Route::get('medical-records/{medicalRecord}/edit', [MedicalRecordController::class, 'edit'])->name('medical_records.edit');
+Route::put('medical-records/{medicalRecord}', [MedicalRecordController::class, 'update'])->name('medical_records.update');
+Route::delete('medical-records/{medicalRecord}', [MedicalRecordController::class, 'destroy'])->name('medical_records.destroy');
 
-// Admin Routes (role_id = 1)
-Route::group(['middleware' => ['auth', 'role:1']], function () {
-    // Admin dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::get('/appointments/{appointment}/manage', [AppointmentController::class, 'manageInProgress'])->name('appointments.manage');
+Route::get('/doctors-public-list', [DoctorController::class, 'publicList'])->name('doctors.publicList');
 
-    // User management routes
-    Route::resource('users', UserController::class);
+Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'create'])->name('invoices.create');
 
-    // Doctor management routes
-    Route::resource('doctors', DoctorController::class);
+Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
+Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'createInvoice'])->name('invoices.create');
 
-    // Secretary management routes
-    Route::resource('secretaries', SecretaryController::class);
-
-    // Patient management routes
-    Route::resource('patients', PatientController::class);
-
-    // Invoices (Admin can view all invoices)
-    Route::resource('doctor/invoices', InvoiceController::class);
-});
-
-// Doctor Routes (role_id = 2)
-Route::group(['middleware' => ['auth', 'role:2']], function () {
-    // Doctor dashboard
-    Route::get('/doctor-dashboard', [DoctorController::class, 'dashboard'])->name('doctor.dashboard');
-
-    // Doctor's appointments
-    Route::get('/doctorappointments', [AppointmentController::class, 'doctorAppointments'])->name('doctorappointments');
-
-    // Incomplete patients (to be completed by the doctor)
-    Route::get('/doctor/incomplete-patients', [PatientController::class, 'incompletePatients'])->name('patients.incomplete');
-    Route::get('/doctor/patient/{patient}/complete', [PatientController::class, 'completePatientForm'])->name('patients.complete.form');
-    Route::post('/doctor/patient/{patient}/complete', [PatientController::class, 'saveCompletedPatient'])->name('patients.complete.save');
-
-    // Doctor's patient list
-    Route::get('/doctor/my-patients', [PatientController::class, 'myPatients'])->name('website.mypatients');
-
-    // Diagnosis Routes
-    Route::get('/doctor/diagnosis', [DiagnosisController::class, 'showDiagnosisForm'])->name('doctors.diagnosis.form');
-    Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->name('doctors.diagnosis');
-
-    // Doctor's profile settings and reviews
-    Route::get('/doctor/create-profile', [DoctorController::class, 'createProfile'])->name('doctor.create-profile');
-    Route::post('/doctor/store-profile', [DoctorController::class, 'storeProfile'])->name('doctor.store-profile');
-    Route::get('/doctor/profile-settings', [DoctorController::class, 'profileSettings'])->name('doctor.profile-settings');
-    Route::get('/doctor/reviews', [DoctorController::class, 'showDoctorReviews'])->name('doctor.reviews');
-
-    // Invoices created by a doctor
-    Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'create'])->name('invoices.create');
-    Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
-    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-});
-
-// Secretary Routes (role_id = 3)
-Route::group(['middleware' => ['auth', 'role:3']], function () {
-    // Secretary-specific routes for managing appointments
-    Route::get('/appointments/inprogress', [AppointmentController::class, 'inProgressAppointments'])->name('appointments.inprogress');
-    Route::get('/appointments/{appointment}/manage', [AppointmentController::class, 'manageInProgress'])->name('appointments.manage');
-
-    // Secretary creating invoices for doctors
-    Route::get('/invoices/create/{appointment}', [InvoiceController::class, 'createInvoice'])->name('invoices.create');
-    Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
-});
-
-// Common Routes
-// Route to update the status of an appointment (mark as completed or cancel)
-Route::put('/appointments/{appointment}', [AppointmentController::class, 'updateAppointmentStatus'])->name('appointments.update');
-
-// Route to delete a review
-Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
 
 Route::get('/invoices/{invoice}', [InvoiceController::class, 'viewInvoiceDetails'])->name('invoices.details');
 Route::get('/medical-records/{id}/details', [MedicalRecordController::class, 'show'])->name('medical.history.details');

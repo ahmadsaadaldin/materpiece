@@ -169,20 +169,27 @@ class DoctorController extends Controller
 
     public function publicList(Request $request)
 {
-    // Retrieve search query from the request
+    // Get the search input from the request
     $search = $request->input('search');
 
-    // Query to fetch doctors and allow searching by name or specialization
-    $doctors = Doctor::with('user')
-        ->when($search, function ($query, $search) {
-            return $query->whereHas('user', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })->orWhere('specialization', 'like', '%' . $search . '%');
+    // Build the query to search doctors by name, specialization, clinic name, or services
+    $doctors = Doctor::query()
+        ->with('user') // Assuming Doctor model is related to User model
+        ->when($search, function ($queryBuilder) use ($search) {
+            $queryBuilder->whereHas('user', function ($userQuery) use ($search) {
+                $userQuery->where('name', 'LIKE', "%{$search}%")
+                          ->orWhere('clinic_name', 'LIKE', "%{$search}%")
+                          ->orWhere('address', 'LIKE', "%{$search}%");
+            })->orWhere('specialization', 'LIKE', "%{$search}%")
+              ->orWhere('services', 'LIKE', "%{$search}%");
         })
-        ->paginate(10);  // Adjust the pagination as needed
+        ->paginate(9); // Paginate the results
 
-    return view('doctors.public-list', compact('doctors', 'search'));
+    // Return the view with the filtered list of doctors
+    return view('doctors.public-list', compact('doctors'));
 }
+
+    
 
 public function createProfile()
 {
@@ -277,6 +284,41 @@ public function showDoctorReviews()
     $reviews = $doctor->reviews()->with('patient.user')->get();  // Assuming Review belongs to Doctor and Review has Patient
     
     return view('doctors.doctor-reviews', compact('doctor', 'reviews'));
+}
+public function search(Request $request)
+{
+    // Validate the search input
+    $request->validate([
+        'location' => 'nullable|string|max:255',
+        'query' => 'nullable|string|max:255',
+    ]);
+
+    // Get the search inputs
+    $location = $request->input('location');
+    $query = $request->input('query');
+
+    // Build the search query
+    $doctors = Doctor::query()
+        ->with('user') // Assuming Doctor model is related to User model
+        ->when($location, function ($queryBuilder) use ($location) {
+            $queryBuilder->whereHas('user', function ($userQuery) use ($location) {
+                $userQuery->where('city', 'LIKE', "%{$location}%")
+                          ->orWhere('state', 'LIKE', "%{$location}%");
+            });
+        })
+        ->when($query, function ($queryBuilder) use ($query) {
+            $queryBuilder->where('specialization', 'LIKE', "%{$query}%")
+                         ->orWhere('clinic_name', 'LIKE', "%{$query}%")
+                         ->orWhere('services', 'LIKE', "%{$query}%")
+                         ->orWhereHas('user', function ($userQuery) use ($query) {
+                             $userQuery->where('name', 'LIKE', "%{$query}%")
+                                       ->orWhere('clinic_address', 'LIKE', "%{$query}%");
+                         });
+        })
+        ->get();
+
+    // Return the search results to the view
+    return view('doctors.search-results', compact('doctors'));
 }
 
 

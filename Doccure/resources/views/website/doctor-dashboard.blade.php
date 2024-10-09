@@ -93,10 +93,6 @@
                     </div>
                     <!-- /Card Section -->
 
-                    <!-- Revenue Chart Section -->
-                    
-                    <!-- /Revenue Chart Section -->
-
                     <!-- Dynamic Appointment Section -->
                     <div class="row">
                         <div class="col-md-12">
@@ -116,151 +112,158 @@
 
                                 <div class="tab-content">
 
-                                    <!-- Upcoming Appointment Tab -->
-                                    <div class="tab-pane show active" id="upcoming-appointments">
-                                        <div class="card card-table mb-0">
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-hover table-center mb-0">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Patient Name</th>
-                                                                <th>Appointment Date</th>
-                                                                <th>Appointment Time</th>
-                                                                <th>Status</th>
-                                                                <th class="text-right">Actions</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @if($upcomingAppointments->isEmpty())
-                                                                <p>No upcoming scheduled appointments found.</p>
-                                                            @else
-                                                                @foreach($upcomingAppointments as $appointment)
-                                                                    <tr>
-                                                                        <td>{{ $appointment->patient->user->name }}</td>
-                                                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}</td>
-                                                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
-                                                                        <td>{{ ucfirst($appointment->status) }}</td>
-                                                                        <td class="text-right">
-                                                                            <div class="table-action">
-                                                                                <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
-                                                                                    @csrf
-                                                                                    @method('PUT')
-                                                                                    <input type="hidden" name="status" value="in progress">
-                                                                                    <button style="width:100px" type="submit" class="btn btn-sm bg-success-light">
-                                                                                        <i class="fas fa-check"></i> Start
-                                                                                    </button>
-                                                                                </form>
+<!-- Upcoming Appointment Tab -->
+<div class="tab-pane show active" id="upcoming-appointments">
+    <div class="card card-table mb-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-center mb-0">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Appointment Date</th>
+                            <th>Appointment Time</th>
+                            <th>Status</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $today = \Carbon\Carbon::today();
+                        @endphp
 
-                                                                                @if($appointment->status === 'in progress')
-                                                                                    <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
-                                                                                        @csrf
-                                                                                        @method('PUT')
-                                                                                        <input type="hidden" name="status" value="completed">
-                                                                                        <button style="width:100px;margin-top:10px" type="submit" class="btn btn-sm bg-success-light">
-                                                                                            <i class="fas fa-check"></i> Complete
-                                                                                        </button>
-                                                                                    </form>
-                                                                                @endif
+                        @if($upcomingAppointments->filter(fn($appointment) => \Carbon\Carbon::parse($appointment->appointment_date)->gt($today))->isEmpty())
+                            <p>No upcoming scheduled appointments found.</p>
+                        @else
+                            @foreach($upcomingAppointments as $appointment)
+                                @if(\Carbon\Carbon::parse($appointment->appointment_date)->gt($today))
+                                    <tr>
+                                        <td>{{ $appointment->patient->user->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
+                                        <td>{{ ucfirst($appointment->status) }}</td>
+                                        <td class="text-right">
+                                            <div class="table-action">
+                                                <!-- Start Appointment -->
+                                                @if($appointment->status !== 'in progress')
+                                                    <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="status" value="in progress">
+                                                        <button style="width:100px" type="submit" class="btn btn-sm bg-success-light">
+                                                            <i class="fas fa-check"></i> Start
+                                                        </button>
+                                                    </form>
+                                                @endif
 
-                                                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:100px;margin-top:10px">
-                                                                                    <i class="fas fa-folder-open"></i> View Records
-                                                                                </a>
+                                                <!-- View Medical History -->
+                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:150px;margin-top:10px">
+                                                    <i class="fas fa-folder-open"></i> View Records
+                                                </a>
 
-                                                                                @if($appointment->status === 'completed')
-                                                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
-                                                                                        <i class="fas fa-file-medical"></i> Add Record
-                                                                                    </a>
-                                                                                @endif
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                <!-- Add Medical Record -->
+                                                @if($appointment->status === 'completed')
+                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
+                                                        <i class="fas fa-file-medical"></i> Add Record
+                                                    </a>
+                                                @endif
                                             </div>
-                                        </div>
-                                    </div>
-                                    <!-- /Upcoming Appointment Tab -->
-                                    <!-- Today Appointment Tab -->
-                                    <div class="tab-pane" id="today-appointments">
-                                        <div class="card card-table mb-0">
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-hover table-center mb-0">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Patient Name</th>
-                                                                <th>Appointment Date</th>
-                                                                <th>Appointment Time</th>
-                                                                <th>Status</th>
-                                                                <th class="text-right">Actions</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @if($todayAppointments->isEmpty())
-                                                                <p>No appointments scheduled for today.</p>
-                                                            @else
-                                                                @foreach($todayAppointments as $appointment)
-                                                                    <tr>
-                                                                        <td>{{ $appointment->patient->user->name }}</td>
-                                                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}</td>
-                                                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
-                                                                        <td>{{ ucfirst($appointment->status) }}</td>
-                                                                        <td class="text-right">
-                                                                            <div class="table-action">
-                                                                                <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
-                                                                                    @csrf
-                                                                                    @method('PUT')
-                                                                                    <input type="hidden" name="status" value="completed">
-                                                                                    <button type="submit" class="btn btn-sm bg-success-light">
-                                                                                        <i class="fas fa-check"></i> Accept
-                                                                                    </button>
-                                                                                </form>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Upcoming Appointment Tab -->
 
-                                                                                <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
-                                                                                    @csrf
-                                                                                    @method('PUT')
-                                                                                    <input type="hidden" name="status" value="cancelled">
-                                                                                    <button type="submit" class="btn btn-sm bg-danger-light">
-                                                                                        <i class="fas fa-times"></i> Cancel
-                                                                                    </button>
-                                                                                </form>
+<!-- Today Appointment Tab -->
+<div class="tab-pane" id="today-appointments">
+    <div class="card card-table mb-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-center mb-0">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Appointment Date</th>
+                            <th>Appointment Time</th>
+                            <th>Status</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if($todayAppointments->filter(fn($appointment) => \Carbon\Carbon::parse($appointment->appointment_date)->eq($today))->isEmpty())
+                            <p>No appointments scheduled for today.</p>
+                        @else
+                            @foreach($todayAppointments as $appointment)
+                                @if(\Carbon\Carbon::parse($appointment->appointment_date)->eq($today))
+                                    <tr>
+                                        <td>{{ $appointment->patient->user->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d M Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
+                                        <td>{{ ucfirst($appointment->status) }}</td>
+                                        <td class="text-right">
+                                            <div class="table-action">
+                                                <!-- Start Appointment -->
+                                                @if($appointment->status === 'scheduled')
+                                                    <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="status" value="in progress">
+                                                        <button type="submit" class="btn btn-sm bg-success-light">
+                                                            <i class="fas fa-check"></i> Start
+                                                        </button>
+                                                    </form>
+                                                @elseif($appointment->status === 'in progress')
+                                                    <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="status" value="completed">
+                                                        <button type="submit" class="btn btn-sm bg-success-light">
+                                                            <i class="fas fa-check"></i> Complete
+                                                        </button>
+                                                    </form>
+                                                @endif
 
-                                                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:100px;margin-top:10px">
-                                                                                    <i class="fas fa-folder-open"></i> View Records
-                                                                                </a>
+                                                <!-- View Medical History -->
+                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:100px;margin-top:10px">
+                                                    <i class="fas fa-folder-open"></i> View Records
+                                                </a>
 
-                                                                                @if($appointment->status === 'completed')
-                                                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
-                                                                                        <i class="fas fa-file-medical"></i> Add Record
-                                                                                    </a>
-                                                                                @endif
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                <!-- Add Medical Record -->
+                                                @if($appointment->status === 'completed')
+                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
+                                                        <i class="fas fa-file-medical"></i> Add Record
+                                                    </a>
+                                                @endif
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                        <div style="margin-top:30px" class="col-md-12">
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <!-- /Dynamic Appointment Section -->
+
+                    <!-- Revenue Chart Section -->
+                    <div class="row">
+                        <div class="col-md-12" style="margin-top: 30px;">
                             <h4 class="mb-4">Revenue Chart</h4>
                             <canvas id="revenueChart" width="800" height="200"></canvas>
                         </div>
                     </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /Dynamic Appointment Section -->
+                    <!-- /Revenue Chart Section -->
 
                 </div>
             </div>
