@@ -53,33 +53,38 @@ class AuthController extends Controller
     /**
      * Handle user login.
      */
-    public function login(Request $request)
-    {
-        // Validation logic to ensure the email and password meet the criteria
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:8',
-        ]);
-    
-        // Get the credentials (email and password) from the request
-        $credentials = $request->only('email', 'password');
-    
-        // Attempt to log the user in with the provided credentials
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-    
-            // If the user is a doctor (assuming role_id 2 is for doctors), redirect to the doctor's dashboard page
-            if ($user->role_id == 2) {
-                return redirect()->route('doctor.dashboard')->with('success', 'Logged in successfully');
-            }
-    
-            // Otherwise, redirect to the homepage or another dashboard
-            return redirect()->route('home')->with('success', 'Logged in successfully');
-        } else {
-            // If authentication fails, redirect back with an error message
-            return redirect()->back()->with('error', 'Invalid credentials. Please try again.');
+   /**
+ * Handle user login.
+ */
+public function login(Request $request)
+{
+
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string|min:8',
+    ]);
+
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+
+        if ($user->role_id == 1) {
+            return redirect()->route('admin.dashboard')->with('success', 'Logged in successfully as Admin');
         }
+
+        if ($user->role_id == 2) {
+            return redirect()->route('doctor.dashboard')->with('success', 'Logged in successfully as Doctor');
+        }
+
+
+        return redirect()->route('home')->with('success', 'Logged in successfully');
+    } else {
+
+        return redirect()->back()->with('error', 'Invalid credentials. Please try again.');
     }
+}
+
 
     /**
      * Handle user logout.
