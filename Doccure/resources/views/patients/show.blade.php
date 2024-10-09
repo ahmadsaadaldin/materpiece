@@ -12,16 +12,17 @@
             Patient Information
         </div>
         <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item"><strong>Name:</strong> {{ $patient->user->name }}</li>
-                <li class="list-group-item"><strong>Email:</strong> {{ $patient->user->email }}</li>
-                <li class="list-group-item"><strong>Phone:</strong> {{ $patient->user->phone }}</li>
-                <li class="list-group-item"><strong>Address:</strong> {{ $patient->user->address }}</li>
-                <li class="list-group-item"><strong>Insurance Number:</strong> {{ $patient->insurance_number }}</li>
-                <li class="list-group-item"><strong>Medical History:</strong> {{ $patient->medical_history }}</li>
-                <li class="list-group-item"><strong>Date of Birth:</strong> {{ $patient->date_of_birth }}</li>
-                <li class="list-group-item"><strong>Assigned Doctor:</strong> {{ $patient->doctor->user->name }}</li>
-            </ul>
+        <ul class="list-group list-group-flush">
+    <li class="list-group-item"><strong>Name:</strong> {{ $patient->user->name ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ $patient->user->email ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Phone:</strong> {{ $patient->user->phone ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Address:</strong> {{ $patient->user->address ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Insurance Number:</strong> {{ $patient->insurance_number ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Medical History:</strong> {{ $patient->medical_history ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Date of Birth:</strong> {{ $patient->date_of_birth ?? 'N/A' }}</li>
+    <li class="list-group-item"><strong>Assigned Doctor:</strong> {{ $patient->doctor->user->name ?? 'N/A' }}</li>
+</ul>
+
         </div>
     </div>
 

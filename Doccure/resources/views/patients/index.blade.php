@@ -25,7 +25,6 @@
                     <td>{{ $patient->id }}</td>
                     <td>{{ $patient->user->name }}</td>
                     <td>{{ $patient->user->email }}</td>
-                    <td>{{ $patient->doctor->user->name }}</td>
                     <td>{{ $patient->user->phone ?? 'No Phone Provided' }}</td> <!-- Display phone number -->
                     <td>{{ $patient->user->address ?? 'No Address Provided' }}</td> <!-- Display address -->
                     <td>

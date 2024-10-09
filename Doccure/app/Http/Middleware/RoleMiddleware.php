@@ -12,7 +12,7 @@ class RoleMiddleware
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  array|string  $roles
+     * @param  mixed  $roles  Single or multiple roles to check against
      * @return mixed
      */
     public function handle($request, Closure $next, ...$roles)
@@ -25,9 +25,9 @@ class RoleMiddleware
         // Get the logged-in user
         $user = Auth::user();
 
-        // Check if the user's role matches one of the allowed roles
+        // Check if the user's role matches any of the allowed roles
         if (!in_array($user->role_id, $roles)) {
-            return redirect('/'); // Redirect if the user does not have the required role
+            return redirect('/')->with('error', 'Unauthorized Access'); // Redirect if the user does not have the required role
         }
 
         return $next($request);

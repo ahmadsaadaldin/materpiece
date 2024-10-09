@@ -173,7 +173,7 @@ class AppointmentController extends Controller
     
         // If the appointment is completed, redirect to the invoice creation page
         if ($appointment->status == 'completed') {
-            return redirect()->route('invoices.create', ['appointment' => $appointment->id])
+            return redirect()->route('invoices.createInvoice', ['appointment' => $appointment->id])
                              ->with('success', 'Appointment is completed. Create an invoice.');
         }
     

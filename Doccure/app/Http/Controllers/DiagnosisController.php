@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log; // Import Log facade to log debug information
-
+use Illuminate\Support\Facades\Auth;
 class DiagnosisController extends Controller
 {
     public function getDiagnosis(Request $request)
@@ -61,8 +61,10 @@ class DiagnosisController extends Controller
         }
     }
     public function showDiagnosisForm()
-{
-    return view('doctors.diagnosis'); // This should be the blade file where the form is located
-}
+    {
+        $doctor = Auth::user()->doctor; // Assuming the logged-in user is a doctor
+        return view('doctors.diagnosis', compact('doctor'));
+    }
+    
 
 }
