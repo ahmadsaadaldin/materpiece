@@ -79,6 +79,7 @@ Route::post('/doctor/diagnosis', [DiagnosisController::class, 'getDiagnosis'])->
     Route::get('/doctor/patient/{patient}/complete', [PatientController::class, 'completePatientForm'])->name('patients.complete.form');
     Route::post('/doctor/patient/{patient}/complete', [PatientController::class, 'saveCompletedPatient'])->name('patients.complete.save');
     Route::get('/doctor/my-patients', [PatientController::class, 'myPatients'])->name('website.mypatients');
+    Route::get('/invoices/{invoice}/details', [InvoiceController::class, 'viewInvoiceDetails'])->name('invoices.details');
 
     // Booking a doctor
     Route::get('/booking/{doctorId}', [AppointmentController::class, 'booking'])->name('appointment.booking');

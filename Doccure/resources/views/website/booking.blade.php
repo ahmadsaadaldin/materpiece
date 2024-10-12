@@ -6,19 +6,29 @@
     <body>
 		<style>
 			.timing.unavailable {
-    background-color: #ff4d4d !important;  /* Red background for unavailable slots */
-    color: #fff !important; /* White text for better contrast */
-    cursor: not-allowed; /* Change cursor to indicate it’s not clickable */
-    pointer-events: none; /* Prevent any click events */
-    border: none; /* Remove border if necessary */
-    text-align: center; /* Center the text inside the button */
-    padding: 10px 20px; /* Adjust padding for better appearance */
-    border-radius: 5px; /* Optional: Add border radius for rounded corners */
-    display: inline-block; /* Ensure it behaves like a button */
-}
+			    background-color: #ff4d4d !important;  
+			    color: #fff !important; 
+			    cursor: not-allowed; 
+			    pointer-events: none; 
+			    border: none; 
+			    text-align: center; 
+			    padding: 10px 20px; 
+			    border-radius: 5px; 
+			    display: inline-block; 
+			}
 
+            /* Warning alert styling */
+            .alert-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+                padding: 10px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
 
 		</style>
+
+        <!-- Display errors if any -->
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -28,6 +38,7 @@
                 </ul>
             </div>
         @endif 
+
         <!-- Main Wrapper -->
         <div class="main-wrapper">
             <!-- Breadcrumb -->
@@ -53,7 +64,6 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-12">
-                        
                             <div class="card">
                                 <div class="card-body">
                                     <div class="booking-doc-info">
@@ -67,7 +77,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Schedule Widget -->
                             <div class="card booking-schedule schedule-widget">
                                 <div class="schedule-header">
@@ -110,12 +120,12 @@
         </div>
     </div>
 </div>
+
 						    <!-- Submit Section -->
                             <div style="margin-right:20px" class="submit-section proceed-btn text-right">
-                                <button  id="bookAppointment" class="btn btn-primary submit-btn">Book Now</button>
+                                <button id="bookAppointment" class="btn btn-primary submit-btn">Book Now</button>
                             </div>
                             <!-- /Submit Section -->
-                            
                         </div>
                     </div>
                 </div>
@@ -146,7 +156,6 @@
                             selectedTime = `${hours.toString().padStart(2, '0')}:${minutes}:00`;
                         });
                     });
-                    
 
                     document.getElementById('bookAppointment').addEventListener('click', function() {
                         if (selectedDate && selectedTime) {

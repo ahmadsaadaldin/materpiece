@@ -17,17 +17,17 @@ class AppointmentController extends Controller
     {
         $doctor = Doctor::findOrFail($doctorId);
         $weekDays = collect();
-
-        for ($i = 0; $i < 7; $i++) {
+    
+        for ($i = 1; $i <= 7; $i++) { // Start from tomorrow, so $i starts from 1 instead of 0
             $date = now()->addDays($i)->format('Y-m-d');
             $appointments = Appointment::where('doctor_id', $doctorId)
                                        ->where('appointment_date', $date)
                                        ->pluck('appointment_time')
                                        ->toArray();
-
+    
             $timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM'];
             $availableTimeSlots = [];
-
+    
             foreach ($timeSlots as $timeSlot) {
                 $formattedTimeSlot = date("H:i:s", strtotime($timeSlot));
                 $availableTimeSlots[] = [
@@ -35,7 +35,7 @@ class AppointmentController extends Controller
                     'is_booked' => in_array($formattedTimeSlot, $appointments),
                 ];
             }
-
+    
             $weekDays->add([
                 'day' => now()->addDays($i)->format('d'),
                 'month' => now()->addDays($i)->format('m'),
@@ -43,10 +43,10 @@ class AppointmentController extends Controller
                 'timeSlots' => $availableTimeSlots,
             ]);
         }
-
+    
         return view('website.booking', compact('doctor', 'weekDays'));
     }
-
+    
     // Handle appointment creation
     public function store(Request $request)
     {
@@ -54,6 +54,7 @@ class AppointmentController extends Controller
             return redirect()->route('login')->with('error', 'You must be logged in to book an appointment.');
         }
     
+        // Validate the appointment form input
         $request->validate([
             'appointment_date' => 'required|date',
             'appointment_time' => 'required',
@@ -61,6 +62,27 @@ class AppointmentController extends Controller
         ]);
     
         $userId = Auth::id();
+    
+        // Fetch the patient record using the authenticated user's ID
+        $patient = Patient::where('user_id', $userId)->first();
+    
+        if (!$patient) {
+            return redirect()->back()->withErrors(['error' => 'Patient not found for this user.'])->withInput();
+        }
+    
+        // Check if the user already has an appointment at the same date and time with another doctor
+        $conflictingAppointment = Appointment::where('patient_id', $patient->id)
+            ->where('appointment_date', $request->appointment_date)
+            ->where('appointment_time', $request->appointment_time)
+            ->where('doctor_id', '!=', $request->doctor_id) // Exclude same doctor appointments
+            ->exists();
+    
+        if ($conflictingAppointment) {
+            // Return back to the form with an error message
+            return redirect()->back()->withErrors(['appointment_time' => 'You already have an appointment at this time with another doctor.'])->withInput();
+        }
+    
+        // Create the patient if they don't already exist
         $patient = Patient::firstOrCreate(
             ['user_id' => $userId],
             [
@@ -70,8 +92,10 @@ class AppointmentController extends Controller
             ]
         );
     
+        // Attach the doctor to the patient
         $patient->doctors()->syncWithoutDetaching([$request->doctor_id]);
     
+        // Create the appointment
         $appointment = Appointment::create([
             'appointment_date' => $request->appointment_date,
             'appointment_time' => $request->appointment_time,
@@ -87,7 +111,8 @@ class AppointmentController extends Controller
             'appointment_time' => $appointment->appointment_time,
         ]);
     }
-
+    
+    
     // Show success page after appointment booking
     public function success(Request $request)
     {
@@ -146,7 +171,6 @@ class AppointmentController extends Controller
     
         return view('appointments.inprogress', compact('appointments', 'doctor'));
     }
-    
 
     // Manage in-progress appointment
     public function manageInProgress($appointmentId)
@@ -179,8 +203,6 @@ class AppointmentController extends Controller
     
         return redirect()->back()->with('success', 'Appointment status updated.');
     }
-    
-
 
     // Method to show today's appointments and upcoming appointments separately
     public function showTodayAndUpcomingAppointments()
@@ -206,13 +228,13 @@ class AppointmentController extends Controller
 
         return view('website.doctor-appointments', compact('todayAppointments', 'upcomingAppointments'));
     }
+
     public function viewAppointmentDetails($appointmentId)
-{
-    // Find the appointment by ID and load related data (e.g., doctor, patient)
-    $appointment = Appointment::with(['doctor.user', 'patient.user'])->findOrFail($appointmentId);
+    {
+        // Find the appointment by ID and load related data (e.g., doctor, patient)
+        $appointment = Appointment::with(['doctor.user', 'patient.user'])->findOrFail($appointmentId);
 
-    // Return the appointment details view
-    return view('appointments.view', compact('appointment'));
-}
-
+        // Return the appointment details view
+        return view('appointments.view', compact('appointment'));
+    }
 }
