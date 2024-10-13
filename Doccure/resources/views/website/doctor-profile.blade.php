@@ -1,6 +1,6 @@
 @extends('layouts.website')
 
-@section('title', 'Home')
+@section('title', 'Doctor Profile')
 
 @section('content')
 <!-- Main Wrapper -->
@@ -12,7 +12,7 @@
             <div class="col-md-12 col-12">
                 <nav aria-label="breadcrumb" class="page-breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index-2.html">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Doctor Profile</li>
                     </ol>
                 </nav>
@@ -44,6 +44,28 @@
                                     {{ $doctor->specialization }}
                                 @endif
                             </p>
+
+                            <!-- Star Rating under Specialization -->
+                            @php
+                                $averageRating = round($doctor->reviews->avg('rating'), 1);
+                            @endphp
+
+                            @if($averageRating > 0)
+                                <div class="rating">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if ($i <= $averageRating)
+                                            <i class="fas fa-star" style="color: #ffc107;"></i> <!-- Filled star -->
+                                        @else
+                                            <i class="far fa-star" style="color: #ffc107;"></i> <!-- Empty star -->
+                                        @endif
+                                    @endfor
+                                    <span>{{ $doctor->reviews->count() }} reviews</span>
+                                </div>
+                            @else
+                                <div class="rating">
+                                    <span>No reviews yet</span>
+                                </div>
+                            @endif
 
                             <!-- City and Address -->
                             <ul class="available-info">
@@ -277,11 +299,6 @@
     .comments-list {
         padding-left: 0;
         list-style: none;
-    }
-
-    /* Styling for reviews */
-    .review-item {
-        margin-bottom: 20px;
     }
 
     /* Grey box for each comment */
