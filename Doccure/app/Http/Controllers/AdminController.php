@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Appointment;
+use App\Models\Invoice;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     /**
@@ -71,4 +72,6 @@ class AdminController extends Controller
     {
         //
     }
+    
+    
 }

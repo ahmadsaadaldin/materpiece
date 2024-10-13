@@ -13,9 +13,7 @@
                 <th>ID</th>
                 <th>Patient Name</th>
                 <th>Email</th>
-                <th>Doctor</th>
                 <th>Phone</th>
-                <th>Address</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -26,10 +24,8 @@
                     <td>{{ $patient->user->name }}</td>
                     <td>{{ $patient->user->email }}</td>
                     <td>{{ $patient->user->phone ?? 'No Phone Provided' }}</td> <!-- Display phone number -->
-                    <td>{{ $patient->user->address ?? 'No Address Provided' }}</td> <!-- Display address -->
                     <td>
-                        <a href="{{ route('patients.show', $patient->id) }}" class="btn btn-info btn-sm">View</a>
-                        <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-primary btn-sm">Edit</a>
                         <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')

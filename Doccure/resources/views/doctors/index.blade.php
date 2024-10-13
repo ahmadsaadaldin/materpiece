@@ -38,7 +38,7 @@
                             <td>{{ $doctor->specialization }}</td>
                             <td>{{ $doctor->years_of_experience }}</td>
                             <td>
-                                <a href="{{ route('doctors.edit', $doctor->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('doctors.edit', $doctor->id) }}" class="btn btn-primary btn-sm">Edit</a>
                                 <form action="{{ route('doctors.destroy', $doctor->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')

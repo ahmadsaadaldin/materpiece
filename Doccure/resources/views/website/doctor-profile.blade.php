@@ -139,8 +139,8 @@
 
                     <!-- Reviews Content -->
                     <div role="tabpanel" id="doc_reviews" class="tab-pane fade">
-                        <!-- Review Listing -->
-                        <div class="widget review-listing">
+                        <!-- Review Listing with scrollable area -->
+                        <div class="widget review-listing" style="max-height: 400px; overflow-y: scroll;">
                             <h4 class="widget-title">Reviews</h4>
                             <ul class="comments-list">
                                 @forelse($doctor->reviews as $review)
@@ -337,6 +337,12 @@
         margin-top: 10px;
         font-size: 12px;
         color: #888;
+    }
+
+    /* Add scroll to reviews */
+    .review-listing {
+        max-height: 800px; /* Limit the height of the review section */
+        overflow-y: auto;  /* Add scroll to the reviews section */
     }
 </style>
 
