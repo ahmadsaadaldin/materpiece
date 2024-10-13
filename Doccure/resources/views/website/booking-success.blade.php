@@ -46,7 +46,7 @@
                                     <i class="fas fa-check"></i>
                                     <h3>Appointment booked Successfully!</h3>
                                     <p>Appointment booked with <strong>{{ $doctor->user->name }}</strong><br> on <strong>{{ \Carbon\Carbon::parse($appointment_date)->format('d M Y') }} {{ \Carbon\Carbon::parse($appointment_time)->format('h:i A') }}</strong></p>
-                                    <a href="invoice-view.html" class="btn btn-primary view-inv-btn">View Invoice</a>
+                                    <a href="{{ route('home') }}" class="btn btn-primary view-inv-btn">Back to Homepage</a>
                                 </div>
                             </div>
                         </div>
