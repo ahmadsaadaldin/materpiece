@@ -50,9 +50,85 @@
 </head>
 <body>
 
-    <!-- Navbar or Header -->
-    @include('partials.navbar') <!-- You can create a separate navbar blade file and include it here -->
-    
+    <!-- Navbar or Header (Burger Menu for smaller screens) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ route('home') }}">
+            <img src="{{ asset('main/assets/img/logo.png') }}" class="img-fluid" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ route('home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('doctors.publicList') }}">Doctors</a>
+                </li>
+
+                @if(Auth::check())
+                    @if(Auth::user()->role_id == 2)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('doctor.dashboard') }}">Doctor Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('doctorappointments') }}">My Appointments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('doctor.reviews') }}">Reviews</a>
+                        </li>
+                    @elseif(Auth::user()->role_id == 4)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('patients.patient-dashboard') }}">Patient Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('patients.profile') }}">Patient Profile</a>
+                        </li>
+                    @elseif(Auth::user()->role_id == 1)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.index') }}">User Management</a>
+                        </li>
+                    @elseif(Auth::user()->role_id == 3)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('secretary.dashboard') }}">Secretary Dashboard</a>
+                        </li>
+                    @endif
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login.show') }}">Login / Signup</a>
+                    </li>
+                @endif
+            </ul>
+
+            <!-- Right Header Menu (User Info and Logout) -->
+            <ul class="navbar-nav">
+                @if(Auth::check())
+                    <li class="nav-item">
+                        <span class="nav-link">Hello, {{ Auth::user()->name }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('logout') }}"
+                           onclick="event.preventDefault();
+                                    document.getElementById('logout-form').submit();">
+                            Logout
+                        </a>
+                    </li>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login.show') }}">Login / Signup</a>
+                    </li>
+                @endif
+            </ul>
+        </div>
+    </nav>
+
     <!-- Main Content -->
     <div class="container-fluid">
         @yield('content')
