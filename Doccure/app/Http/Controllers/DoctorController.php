@@ -61,7 +61,6 @@ class DoctorController extends Controller
             'specialization' => $request->input('specialization'),
             'years_of_experience' => $request->input('years_of_experience'),
             'image' => $imagePath ?? null,
-            'description' => $request->input('description'),
         ]);
 
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');

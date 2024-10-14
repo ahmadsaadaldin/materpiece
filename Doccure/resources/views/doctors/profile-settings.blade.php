@@ -76,11 +76,6 @@
     <textarea class="form-control" name="education" rows="4">{{ old('education', $doctor->education) }}</textarea>
 </div>
 
-<!-- Experience -->
-<div class="form-group">
-    <label>Experience</label>
-    <textarea class="form-control" name="experience" rows="4">{{ old('experience', $doctor->experience) }}</textarea>
-</div>
                                     </div>
                                     
                                     <div class="col-md-6">

@@ -41,12 +41,6 @@
                             <label for="image" class="form-label">Doctor Image</label>
                             <input type="file" name="image" id="image" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea name="description" id="description" class="form-control" rows="4"></textarea>
-                        </div>
-
-
                         <button type="submit" class="btn btn-primary">Create Doctor</button>
                     </form>
                 </div>
