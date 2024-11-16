@@ -63,26 +63,7 @@ class AppointmentController extends Controller
     
         $userId = Auth::id();
     
-        // Fetch the patient record using the authenticated user's ID
-        $patient = Patient::where('user_id', $userId)->first();
-    
-        if (!$patient) {
-            return redirect()->back()->withErrors(['error' => 'Patient not found for this user.'])->withInput();
-        }
-    
-        // Check if the user already has an appointment at the same date and time with another doctor
-        $conflictingAppointment = Appointment::where('patient_id', $patient->id)
-            ->where('appointment_date', $request->appointment_date)
-            ->where('appointment_time', $request->appointment_time)
-            ->where('doctor_id', '!=', $request->doctor_id) // Exclude same doctor appointments
-            ->exists();
-    
-        if ($conflictingAppointment) {
-            // Return back to the form with an error message
-            return redirect()->back()->withErrors(['appointment_time' => 'You already have an appointment at this time with another doctor.'])->withInput();
-        }
-    
-        // Create the patient if they don't already exist
+        // Ensure a patient record exists for the authenticated user
         $patient = Patient::firstOrCreate(
             ['user_id' => $userId],
             [
@@ -91,6 +72,17 @@ class AppointmentController extends Controller
                 'date_of_birth' => $request->input('date_of_birth', null),
             ]
         );
+    
+        // Check if the user already has an appointment at the same date and time with another doctor
+        $conflictingAppointment = Appointment::where('patient_id', $patient->id)
+            ->where('appointment_date', $request->appointment_date)
+            ->where('appointment_time', $request->appointment_time)
+            ->where('doctor_id', '!=', $request->doctor_id)
+            ->exists();
+    
+        if ($conflictingAppointment) {
+            return redirect()->back()->withErrors(['appointment_time' => 'You already have an appointment at this time with another doctor.'])->withInput();
+        }
     
         // Attach the doctor to the patient
         $patient->doctors()->syncWithoutDetaching([$request->doctor_id]);

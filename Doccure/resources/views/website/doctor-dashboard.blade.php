@@ -143,28 +143,28 @@
                                         <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
                                         <td>{{ ucfirst($appointment->status) }}</td>
                                         <td class="text-right">
-                                            <div class="table-action">
+                                            <div class="table-action d-flex flex-column align-items-end">
                                                 <!-- Start Appointment -->
                                                 @if($appointment->status !== 'in progress')
                                                     <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
                                                         @csrf
                                                         @method('PUT')
                                                         <input type="hidden" name="status" value="in progress">
-                                                        <button style="width:100px" type="submit" class="btn btn-sm bg-success-light">
+                                                        <button type="submit" class="btn btn-sm bg-success-light mb-2">
                                                             <i class="fas fa-check"></i> Start
                                                         </button>
                                                     </form>
                                                 @endif
 
                                                 <!-- View Medical History -->
-                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:150px;margin-top:10px">
-                                                    <i class="fas fa-folder-open"></i> View Records
+                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light mb-2">
+                                                    <i class="fas fa-folder-open"></i> Records
                                                 </a>
 
                                                 <!-- Add Medical Record -->
                                                 @if($appointment->status === 'completed')
-                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
-                                                        <i class="fas fa-file-medical"></i> Add Record
+                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light">
+                                                        <i class="fas fa-file-medical"></i> Add
                                                     </a>
                                                 @endif
                                             </div>
@@ -208,14 +208,14 @@
                                         <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
                                         <td>{{ ucfirst($appointment->status) }}</td>
                                         <td class="text-right">
-                                            <div class="table-action">
+                                            <div class="table-action d-flex flex-column align-items-end">
                                                 <!-- Start Appointment -->
                                                 @if($appointment->status === 'scheduled')
                                                     <form method="POST" action="{{ route('appointments.update', $appointment->id) }}">
                                                         @csrf
                                                         @method('PUT')
                                                         <input type="hidden" name="status" value="in progress">
-                                                        <button type="submit" class="btn btn-sm bg-success-light">
+                                                        <button type="submit" class="btn btn-sm bg-success-light mb-2">
                                                             <i class="fas fa-check"></i> Start
                                                         </button>
                                                     </form>
@@ -224,21 +224,21 @@
                                                         @csrf
                                                         @method('PUT')
                                                         <input type="hidden" name="status" value="completed">
-                                                        <button type="submit" class="btn btn-sm bg-success-light">
+                                                        <button type="submit" class="btn btn-sm bg-success-light mb-2">
                                                             <i class="fas fa-check"></i> Complete
                                                         </button>
                                                     </form>
                                                 @endif
 
                                                 <!-- View Medical History -->
-                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light" style="width:100px;margin-top:10px">
-                                                    <i class="fas fa-folder-open"></i> View Records
+                                                <a href="{{ route('medical_records.index', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-info-light mb-2">
+                                                    <i class="fas fa-folder-open"></i> Records
                                                 </a>
 
                                                 <!-- Add Medical Record -->
                                                 @if($appointment->status === 'completed')
-                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light" style="width:100px;margin-top:10px">
-                                                        <i class="fas fa-file-medical"></i> Add Record
+                                                    <a href="{{ route('medical_records.create', ['id' => $appointment->patient->id]) }}" class="btn btn-sm bg-primary-light">
+                                                        <i class="fas fa-file-medical"></i> Add
                                                     </a>
                                                 @endif
                                             </div>
@@ -321,3 +321,31 @@
     });
 </script>
 @endpush
+
+<style>
+/* Reduce button size and margins for mobile */
+@media (max-width: 768px) {
+    .table-action button, 
+    .table-action a {
+        width: 100px !important;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    /* Adjust table layout */
+    th, td {
+        white-space: nowrap;
+    }
+    .table-action {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    table {
+        width: 100% !important;
+    }
+    td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+</style>

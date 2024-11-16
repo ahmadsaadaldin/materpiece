@@ -50,16 +50,28 @@
 </head>
 <body>
 
-    <!-- Navbar or Header (Burger Menu for smaller screens) -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ route('home') }}">
-            <img src="{{ asset('main/assets/img/logo.png') }}" class="img-fluid" alt="Logo">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
+<header class="header">
+    <nav class="navbar navbar-expand-lg header-nav">
+        <div class="navbar-header">
+            <a href="{{ route('home') }}" class="navbar-brand logo">
+                <img src="{{ asset('main/assets/img/logo.png') }}" class="img-fluid" alt="Logo">
+            </a>
+            <!-- Burger Menu Button -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
+            </button>
+        </div>
+        <!-- Collapsible Menu -->
+        <div class="collapse navbar-collapse main-menu-wrapper" id="navbarNav">
+            <div class="menu-header">
+                <a href="{{ route('home') }}" class="menu-logo">
+                    <img src="{{ asset('main/assets/img/logo.png') }}" class="img-fluid" alt="Logo">
+                </a>
+                <a id="menu_close" class="menu-close" href="javascript:void(0);">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+            <ul class="navbar-nav main-nav">
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ route('home') }}">Home</a>
                 </li>
@@ -67,67 +79,58 @@
                     <a class="nav-link" href="{{ route('doctors.publicList') }}">Doctors</a>
                 </li>
 
+                <!-- Check for authenticated users -->
                 @if(Auth::check())
+                    <!-- Doctor Menu -->
                     @if(Auth::user()->role_id == 2)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('doctor.dashboard') }}">Doctor Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('doctorappointments') }}">My Appointments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('doctor.reviews') }}">Reviews</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('doctor.dashboard') }}">Doctor Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('doctorappointments') }}">My Appointments</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('doctor.reviews') }}">Reviews</a></li>
+
+                    <!-- Patient Menu -->
                     @elseif(Auth::user()->role_id == 4)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('patients.patient-dashboard') }}">Patient Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('patients.profile') }}">Patient Profile</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('patients.patient-dashboard') }}">Patient Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('patients.profile') }}">Patient Profile</a></li>
+
+                    <!-- Admin Menu -->
                     @elseif(Auth::user()->role_id == 1)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">User Management</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('users.index') }}">User Management</a></li>
+
+                    <!-- Secretary Menu -->
                     @elseif(Auth::user()->role_id == 3)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('secretary.dashboard') }}">Secretary Dashboard</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('secretary.dashboard') }}">Secretary Dashboard</a></li>
                     @endif
                 @else
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login.show') }}">Login / Signup</a>
-                    </li>
-                @endif
-            </ul>
-
-            <!-- Right Header Menu (User Info and Logout) -->
-            <ul class="navbar-nav">
-                @if(Auth::check())
-                    <li class="nav-item">
-                        <span class="nav-link">Hello, {{ Auth::user()->name }}</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('logout') }}"
-                           onclick="event.preventDefault();
-                                    document.getElementById('logout-form').submit();">
-                            Logout
-                        </a>
-                    </li>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                @else
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login.show') }}">Login / Signup</a>
-                    </li>
                 @endif
             </ul>
         </div>
+
+        <!-- Right Header Menu -->
+        <ul class="nav header-navbar-rht">
+            @if(Auth::check())
+                <!-- Display logged-in user's name -->
+                <li class="nav-item">
+                    <span class="nav-link">Hello, {{ Auth::user()->name }}</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link header-login" href="{{ route('logout') }}"
+                       onclick="event.preventDefault();
+                                document.getElementById('logout-form').submit();">
+                        Logout
+                    </a>
+                </li>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link header-login" href="{{ route('login.show') }}">Login / Signup</a>
+                </li>
+            @endif
+        </ul>
     </nav>
+</header>
 
     <!-- Main Content -->
     <div class="container-fluid">
@@ -156,7 +159,10 @@
     <!-- ChartJS Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Inline script to initialize Theia Sticky Sidebar and Chart.js -->
+    <!-- Inline script to initi<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
     <script>
         $(document).ready(function () {
             // Theia Sticky Sidebar initialization (only if element is found)

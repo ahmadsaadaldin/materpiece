@@ -16,11 +16,7 @@
                 <!-- Search -->
                 <div class="search-box">
                     <form action="{{ route('doctors.publicList') }}" method="GET">
-                        <div class="form-group search-location">
-                            <input type="text" name="search" class="form-control" placeholder="Search Location (City or State)" value="{{ request('search') }}">
-                            <span class="form-text">Based on your Location</span>
-                        </div>
-                        <div class="form-group search-info">
+                        <div style="margin-left:120px" class="form-group search-info">
                             <input type="text" name="search" class="form-control" placeholder="Search Doctors, Specialization, Clinic Name, Services, etc." value="{{ request('search') }}">
                             <span class="form-text">Ex: Dental, Neurology, Dr. John Doe</span>
                         </div>
